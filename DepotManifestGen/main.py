@@ -244,19 +244,6 @@ class MyCDNClient(CDNClient):
             self.fetch_content_servers()
 
         #self.load_licenses()
-
-    def has_license_for_depot(self, depot_id):
-        """ Check if there is license for depot
-
-        :param depot_id: depot ID
-        :type  depot_id: int
-        :returns: True if we have license
-        :rtype: bool
-        """
-        if depot_id in self.licensed_depot_ids:
-            return True
-        else:
-            return False
             
     def load_licenses(self):
         """Read licenses from SteamClient instance, required for determining accessible content"""
