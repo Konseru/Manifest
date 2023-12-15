@@ -304,22 +304,21 @@ class MyCDNClient(CDNClient):
             return manifests
         is_enc_branch = False
 
-        if branch not in depots.get('branches', {}):
-            raise SteamError("No branch named %s for app_id %s" % (repr(branch), app_id))
-        elif int(depots['branches'][branch].get('pwdrequired', 0)) > 0:
-            is_enc_branch = True
+        if branch in depots.get('branches', {}):
+           if int(depots['branches'][branch].get('pwdrequired', 0)) > 0:
+               is_enc_branch = True
 
-            if (app_id, branch) not in self.beta_passwords:
-                if not password:
-                    raise SteamError("Branch %r requires a password" % branch)
+               if (app_id, branch) not in self.beta_passwords:
+                   if not password:
+                       raise SteamError("Branch %r requires a password" % branch)
 
-                result = self.check_beta_password(app_id, password)
+                   result = self.check_beta_password(app_id, password)
 
-                if result != EResult.OK:
-                    raise SteamError("Branch password is not valid. %r" % result)
+                   if result != EResult.OK:
+                       raise SteamError("Branch password is not valid. %r" % result)
 
-                if (app_id, branch) not in self.beta_passwords:
-                    raise SteamError("Incorrect password for branch %r" % branch)
+                   if (app_id, branch) not in self.beta_passwords:
+                       raise SteamError("Incorrect password for branch %r" % branch)
 
         def async_fetch_manifest(
             app_id, depot_id, manifest_gid, decrypt, depot_name, branch_name, branch_pass
