@@ -129,9 +129,9 @@ def get_manifest(cdn, app_id,appinfo,package,manifest, remove_old=False, save_pa
         config = json.loads(json_str)
         config['dlcs'] = package['dlcs']
         config['packagedlcs'] = package['packagedlcs']
-    if not os.path.isfile(app_path / 'appinfo.vdf'):
-        with open(app_path / 'appinfo.vdf', 'w', encoding='utf-8') as f:
-            vdf.dump(appinfo, f, pretty=True)
+    #if not os.path.isfile(app_path / 'appinfo.vdf'):
+    with open(app_path / 'appinfo.vdf', 'w', encoding='utf-8') as f:
+        vdf.dump(appinfo, f, pretty=True)
     if os.path.isfile(app_path / 'Key.vdf'):
         with open(app_path / 'Key.vdf') as f:
             d = vdf.load(f)
