@@ -85,7 +85,7 @@ jobs:
            us = json.load(open('data/userinfo.json'))
            for u, p, s in itertools.zip_longest([i or None for i in (os.environ.get('users') or '').split(' ')],[i or None for i in (os.environ.get('password') or '').split(' ')],[i or None for i in (os.environ.get('ssfn') or '').split(' ')]):
               if u:
-                  if u in j and u in us and not us[u]['enable'] and (j[u][0] != p or j[u][1] != s):
+                  if u in j and u in us and (j[u][1] != s or j[u][0] != p) and not us[u]['enable']:
                       us[u]['enable'] = True
                       us[u].pop('status')
                   j.update({u:[p, s]})
