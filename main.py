@@ -135,9 +135,6 @@ class ManifestAutoUpdate:
             else:
                 self.repo.git.worktree('add', '-b', 'data', 'data', 'app')
         data_repo = git.Repo('data')
-        self.repo = git.Repo.clone_from('https://github.com/BlankTMing/123.git','a')
-        self.log.info(f'123 {self.repo.working_dir}')
-                      
         if data_repo.head.commit.hexsha == self.app_sha:
             self.log.info('Initialize the data branch!')
             self.download_git_crypt()
@@ -183,7 +180,6 @@ class ManifestAutoUpdate:
                         if app_id in self.update_app_id_list:
                             self.update_user_list.append(user)
         self.update_user_list = list(set(self.update_user_list))
-        self.ROOT = Path(self.repo.working_dir) / 'data'
     def download_git_crypt(self):
         if self.git_crypt_path.exists():
             return
