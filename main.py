@@ -445,14 +445,12 @@ class ManifestAutoUpdate:
         for app_id in app_id_list:
             if self.update_app_id_list and int(app_id) not in self.update_app_id_list:
                 continue
-            depot_update = set()
+            depot_update = {}
             #改为get_manifests获取manifests
             manifests = cdn.get_manifests(int(app_id))
             if not manifests:
                 continue
             with lock:
-                if not self.app_lock.get(app_id):
-                    self.app_lock[app_id] = set()
                 for depot in manifests:
                     depot_id = str(depot.depot_id)
                     if not self.app_lock[app_id].get(depot_id):
