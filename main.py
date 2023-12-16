@@ -183,7 +183,7 @@ class ManifestAutoUpdate:
                         if app_id in self.update_app_id_list:
                             self.update_user_list.append(user)
         self.update_user_list = list(set(self.update_user_list))
-
+        self.ROOT = Path(self.repo.working_dir) / 'data'
     def download_git_crypt(self):
         if self.git_crypt_path.exists():
             return
