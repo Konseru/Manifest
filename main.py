@@ -451,6 +451,8 @@ class ManifestAutoUpdate:
             if not manifests:
                 continue
             with lock:
+                if not self.app_lock.get(app_id):
+                    self.app_lock[app_id] = {}
                 for depot in manifests:
                     depot_id = str(depot.depot_id)
                     if not self.app_lock[app_id].get(depot_id):
