@@ -451,13 +451,12 @@ class ManifestAutoUpdate:
             if not manifests:
                 continue
             with lock:
-                if not self.app_lock.get(app_id):
-                    self.app_lock[app_id] = {}
+                self.app_lock.setdefault(app_id, {})
                 for depot in manifests:
                     depot_id = str(depot.depot_id)
                     if not self.app_lock[app_id].get(depot_id):
-                        self.app_lock[app_id].update({depot_id: True})
-                        depot_update.update({depot_id: False})
+                        self.app_lock[app_id][depot_id] = True
+                        depot_update[depot_id] = True
                 if int(app_id) not in self.user_info[username]['app']:
                     self.user_info[username]['app'].append(int(app_id))
                 if not depot_update:
@@ -488,7 +487,7 @@ class ManifestAutoUpdate:
                 manifest_gid = str(depot.gid)
                 self.set_depot_info(depot_id, manifest_gid)
                 with lock:
-                    if depot_update.get(depot_id,True):
+                    if not depot_update.get(depot_id):
                         continue
                     if self.check_manifest_exist(depot_id, manifest_gid):
                         self.log.info(f'Already got the manifest: {depot_id}_{manifest_gid}')
