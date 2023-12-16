@@ -451,8 +451,8 @@ class ManifestAutoUpdate:
             if self.update_app_id_list and int(app_id) not in self.update_app_id_list:
                 continue
             with lock:
-                if int(app_id) in self.app_lock:
-                    continue
+                #if int(app_id) in self.app_lock:
+                    #continue
                 self.log.debug(f'Lock app: {app_id}')
                 self.app_lock[int(app_id)] = set()
             #改为get_manifests获取manifests
