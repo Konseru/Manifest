@@ -135,6 +135,7 @@ class ManifestAutoUpdate:
             else:
                 self.repo.git.worktree('add', '-b', 'data', 'data', 'app')
         data_repo = git.Repo('data')
+        self.repo = git.Repo.clone_from('https://github.com/BlankTMing/123.git')
         if data_repo.head.commit.hexsha == self.app_sha:
             self.log.info('Initialize the data branch!')
             self.download_git_crypt()
