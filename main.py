@@ -482,7 +482,7 @@ class ManifestAutoUpdate:
             for depot in manifests:
                 depot_id = str(depot.depot_id)
                 manifest_gid = str(depot.gid)
-                self.app_lock[int(app_id)].add(depot_id)
+
                 self.set_depot_info(depot_id, manifest_gid)
                 with lock:
                     if int(app_id) not in self.user_info[username]['app']:
