@@ -458,6 +458,8 @@ class ManifestAutoUpdate:
                     if not self.app_lock[app_id].get(depot_id):
                         self.app_lock[app_id].update({depot_id: True})
                         depot_update.update({depot_id: False})
+                if int(app_id) not in self.user_info[username]['app']:
+                    self.user_info[username]['app'].append(int(app_id))
                 if not depot_update:
                     continue
             
@@ -484,11 +486,8 @@ class ManifestAutoUpdate:
             for depot in manifests:
                 depot_id = str(depot.depot_id)
                 manifest_gid = str(depot.gid)
-
                 self.set_depot_info(depot_id, manifest_gid)
                 with lock:
-                    if int(app_id) not in self.user_info[username]['app']:
-                        self.user_info[username]['app'].append(int(app_id))
                     if depot_update.get(depot_id,True):
                         continue
                     if self.check_manifest_exist(depot_id, manifest_gid):
