@@ -444,22 +444,25 @@ class ManifestAutoUpdate:
         for app_id in app_id_list:
             if self.update_app_id_list and int(app_id) not in self.update_app_id_list:
                 continue
-            depot_update = {}
             #改为get_manifests获取manifests
             manifests = cdn.get_manifests(int(app_id))
             if not manifests:
                 continue
+            depot_update = manifests
             with lock:
+                #检查depot是否已被获取
                 self.app_lock.setdefault(app_id, {})
-                for depot in manifests:
+                for index , depot in enumerate(manifests):
                     depot_id = str(depot.depot_id)
                     if not self.app_lock[app_id].get(depot_id):
                         self.app_lock[app_id][depot_id] = True
-                        depot_update[depot_id] = True
+                    else:
+                        depot_update.pop(index)
                 if int(app_id) not in self.user_info[username]['app']:
                     self.user_info[username]['app'].append(int(app_id))
                 if not depot_update:
                     continue
+                
             
             #尝试获取dlc或额外内容并添加到配置文件(仅添加拥有的DLC)
             app = fresh_resp['apps'][app_id]
@@ -481,13 +484,11 @@ class ManifestAutoUpdate:
                 for value in dlcappids.values():
                     if value in package['dlcs']:
                          package['dlcs'].remove(value)
-            for depot in manifests:
+            for depot in depot_update:
                 depot_id = str(depot.depot_id)
                 manifest_gid = str(depot.gid)
                 self.set_depot_info(depot_id, manifest_gid)
                 with lock:
-                    if not depot_update.get(depot_id):
-                        continue
                     if self.check_manifest_exist(depot_id, manifest_gid):
                         self.log.info(f'Already got the manifest: {depot_id}_{manifest_gid}')
                         continue
