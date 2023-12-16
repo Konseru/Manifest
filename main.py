@@ -217,7 +217,6 @@ class ManifestAutoUpdate:
                 else:
                     if delete_list:
                         app_repo.git.rm(delete_list)
-                    app_repo.delete_tag('1366541_8201108801558864199')
                     app_repo.git.add(f'{depot_id}_{manifest_gid}.manifest')
                     #修改将资源Key保存到Key.vdf，新增appinfo(保存app信息 DLC(包括独立DLC))，新增config.json(保存depot_id和dlc_id)
                     app_repo.git.add('Key.vdf')
