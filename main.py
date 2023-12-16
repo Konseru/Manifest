@@ -448,8 +448,8 @@ class ManifestAutoUpdate:
             depot_update = set()
             #改为get_manifests获取manifests
             manifests = cdn.get_manifests(int(app_id))
-                if not manifests:
-                    continue
+            if not manifests:
+                continue
             with lock:
                 if not self.app_lock.get(app_id):
                     self.app_lock[app_id] = set()
