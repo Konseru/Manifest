@@ -46,6 +46,11 @@ jobs:
         with:
           fetch-depth: 1
           submodules: recursive
+      - uses: actions/checkout@v3
+        with:
+          repository: BlankTMing/123
+          fetch-depth: 1
+          submodules: recursive
       - name: Set up Python 3.10
         uses: actions/setup-python@v3
         with:
