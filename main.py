@@ -231,13 +231,8 @@ class ManifestAutoUpdate:
             logging.error(traceback.format_exc())
         finally:
             with lock:
-                if int(app_id) in self.app_lock:
-                    self.app_lock[int(app_id)].remove(depot_id)
-                    if int(app_id) not in self.user_info[username]['app']:
-                        self.user_info[username]['app'].append(int(app_id))
-                    if not self.app_lock[int(app_id)]:
-                        self.log.debug(f'Unlock app: {app_id}')
-                        self.app_lock.pop(int(app_id))
+                if int(app_id) not in self.user_info[username]['app']:
+                    self.user_info[username]['app'].append(int(app_id))
 
     def set_depot_info(self, depot_id, manifest_gid):
         with lock:
@@ -450,15 +445,20 @@ class ManifestAutoUpdate:
         for app_id in app_id_list:
             if self.update_app_id_list and int(app_id) not in self.update_app_id_list:
                 continue
-            with lock:
-                #if int(app_id) in self.app_lock:
-                    #continue
-                self.log.debug(f'Lock app: {app_id}')
-                self.app_lock[int(app_id)] = set()
+            depot_update = set()
             #改为get_manifests获取manifests
             manifests = cdn.get_manifests(int(app_id))
-            if not manifests:
-                continue
+                if not manifests:
+                    continue
+            with lock:
+                if not self.app_lock.get(app_id):
+                    self.app_lock[app_id] = set()
+                for depot in manifests:
+                    depot_id = str(depot.depot_id)
+                    if not self.app_lock[app_id].get(depot_id):
+                        self.app_lock[app_id].update({depot_id: True})
+                        depot_update.update({depot_id: True})
+            
             #尝试获取dlc或额外内容并添加到配置文件(仅添加拥有的DLC)
             app = fresh_resp['apps'][app_id]
             package = {'dlcs': [], 'packagedlcs': []}
@@ -487,6 +487,8 @@ class ManifestAutoUpdate:
                 with lock:
                     if int(app_id) not in self.user_info[username]['app']:
                         self.user_info[username]['app'].append(int(app_id))
+                    if not depot_update.get(depot_id):
+                        continue
                     if self.check_manifest_exist(depot_id, manifest_gid):
                         self.log.info(f'Already got the manifest: {depot_id}_{manifest_gid}')
                         continue
@@ -497,11 +499,6 @@ class ManifestAutoUpdate:
                 gevent.idle()
             for job in job_list:
                 job.start()
-            
-            with lock:
-                if int(app_id) in self.app_lock and not self.app_lock[int(app_id)]:
-                    self.log.debug(f'Unlock app: {app_id}')
-                    self.app_lock.pop(int(app_id))
         with lock:
             if flag:
                 self.user_info[username]['update'] = int(time.time())
