@@ -92,7 +92,6 @@ class ManifestAutoUpdate:
     update_wait_time = 86400
     tags = set()
     depot_tag_list = {}
-    delete_tag_list = set()
     
     def __init__(self, credential_location=None, level=None, pool_num=None, retry_num=None, update_wait_time=None,
                  key=None, init_only=False, cli=False, app_id_list=None, user_list=None):
