@@ -9,7 +9,6 @@ import traceback
 from pathlib import Path
 from binascii import crc32
 from gevent.pool import Pool as GPool
-from gevent.lock import Semaphore
 from steam.utils.web import make_requests_session
 from steam.core.cm import CMClient
 from steam.client import SteamClient
@@ -39,7 +38,7 @@ parser.add_argument('-r', '--remove-old', action='store_true', required=False)
 parser.add_argument('-n', '--retry', type=int, required=False, default=1)
 
 app_lock ={}
-lock = Semaphore(1)
+lock = Lock()
 
 class BillingType:
     NoCost = 0
@@ -328,23 +327,22 @@ class MyCDNClient(CDNClient):
         def async_fetch_manifest(
             app_id, depot_id, manifest_gid, decrypt, depot_name, branch_name, branch_pass
         ):
-                lock.acquire()
-                if not app_lock[str(app_id)].get(str(depot_id)):
-                    try:
-                        manifest_code = self.get_manifest_request_code(app_id, depot_id, int(manifest_gid), branch_name, branch_pass)
-                        manifest = self.get_manifest(app_id, depot_id, manifest_gid, decrypt=decrypt, manifest_request_code=manifest_code)
-                    except Exception as exc:
-                        return ManifestError("Failed download", app_id, depot_id, manifest_gid, exc)
-                    finally:
-                        lock.release()   
-                    app_lock[str(app_id)][str(depot_id)]= True
-                    rets['depots'].append(depot_id)
-                    manifest.name = depot_name
-                    return manifest
-                else:
-                    rets['depots'].append(depot_id)
-                lock.release()   
-                return None
+            try:
+                manifest_code = self.get_manifest_request_code(
+                    app_id, depot_id, int(manifest_gid), branch_name, branch_pass
+                )
+            except SteamError as exc:
+                return ManifestError("Failed to acquire manifest code", app_id, depot_id, manifest_gid, exc)
+
+            try:
+                manifest = self.get_manifest(
+                    app_id, depot_id, manifest_gid, decrypt=decrypt, manifest_request_code=manifest_code
+                )
+            except Exception as exc:
+                return ManifestError("Failed download", app_id, depot_id, manifest_gid, exc)
+            rets['depots'].append(depot_id)
+            manifest.name = depot_name
+            return manifest
                     
         tasks = []
         shared_depots = {}
@@ -385,18 +383,23 @@ class MyCDNClient(CDNClient):
             else:
                 manifest_gid = depot_info.get('manifests', {}).get(branch,{}).get('gid')
             if manifest_gid is not None:
-                tasks.append(
-                    self.gpool.spawn(
-                        async_fetch_manifest,
-                        app_id,
-                        depot_id,
-                        manifest_gid,
-                        decrypt,
-                        depot_info.get('name', depot_id),
-                        branch_name=branch,
-                        branch_pass=None, # TODO: figure out how to pass this correctly
-                     )
-                )
+                with lock:
+                    if not app_lock[str(app_id)].get(str(depot_id)):
+                        app_lock[str(app_id)][str(depot_id)]= True
+                        tasks.append(
+                            self.gpool.spawn(
+                                async_fetch_manifest,
+                                app_id,
+                                depot_id,
+                                manifest_gid,
+                                decrypt,
+                                depot_info.get('name', depot_id),
+                                branch_name=branch,
+                                branch_pass=None, # TODO: figure out how to pass this correctly
+                            )
+                        )
+                    else:
+                        rets['depots'].append(depot_id)
 
         # collect results
         
@@ -406,6 +409,7 @@ class MyCDNClient(CDNClient):
             if not result:
                 continue
             if isinstance(result, ManifestError):
+                app_lock[str(app_id)].remove(str(result.depot_id))
                 raise result
             rets['manifests'].append(result)
                 
