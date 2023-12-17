@@ -303,7 +303,9 @@ class MyCDNClient(CDNClient):
         manifests = []
         depots = []
         if not depots:
-            return manifests
+            ret['manifests'] = manifests
+            ret['depots'] = depots
+            return ret
         is_enc_branch = False
 
         if branch in depots.get('branches', {}):
