@@ -13,6 +13,7 @@ from steam.utils.web import make_requests_session
 from steam.core.cm import CMClient
 from steam.client import SteamClient
 from six import itervalues, iteritems
+from multiprocessing.dummy import Lock
 from steam.enums import EResult, EOSType, EPersonaState
 from steam.client.cdn import CDNClient
 from steam.enums import EResult, EType
@@ -338,7 +339,6 @@ class MyCDNClient(CDNClient):
                 )
             except Exception as exc:
                 return ManifestError("Failed download", app_id, depot_id, manifest_gid, exc)
-            app_lock[str(app_id)][str(depot_id)]= True
             rets['depots'].append(depot_id)
             manifest.name = depot_name
             return manifest
@@ -384,6 +384,7 @@ class MyCDNClient(CDNClient):
             if manifest_gid is not None:
                 with lock:
                     if not app_lock[str(app_id)].get(str(depot_id)):
+                        app_lock[str(app_id)][str(depot_id)]= True
                         tasks.append(
                             self.gpool.spawn(
                                 async_fetch_manifest,
@@ -407,6 +408,7 @@ class MyCDNClient(CDNClient):
             if isinstance(result, ManifestError):
                 raise result
             rets['manifests'].append(result)
+                
 
         # load shared depot manifests
         for app_id, depot_ids in iteritems(shared_depots):
