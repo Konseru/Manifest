@@ -452,9 +452,8 @@ class ManifestAutoUpdate:
             if self.update_app_id_list and int(app_id) not in self.update_app_id_list:
                 continue
            
-            manifests = {'manifests':[],'depots':[]}
+            manifests = cdn.get_manifests(int(app_id))
             with lock:
-                manifests = cdn.get_manifests(int(app_id))
                 if int(app_id) not in self.user_info[username]['app']:
                     self.user_info[username]['app'].append(int(app_id))
                 if not manifests['manifests']:
