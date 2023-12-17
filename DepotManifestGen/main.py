@@ -327,23 +327,24 @@ class MyCDNClient(CDNClient):
         def async_fetch_manifest(
             app_id, depot_id, manifest_gid, decrypt, depot_name, branch_name, branch_pass
         ):
-            try:
-                manifest_code = self.get_manifest_request_code(
-                    app_id, depot_id, int(manifest_gid), branch_name, branch_pass
-                )
-            except SteamError as exc:
-                return ManifestError("Failed to acquire manifest code", app_id, depot_id, manifest_gid, exc)
+            with lock:
+                if not app_lock[str(app_id)].get(str(depot_id)):
+                    try:
+                        manifest_code = self.get_manifest_request_code(app_id, depot_id, int(manifest_gid), branch_name, branch_pass)
+                    except SteamError as exc:
+                        return ManifestError("Failed to acquire manifest code", app_id, depot_id, manifest_gid, exc)
 
-            try:
-                manifest = self.get_manifest(
-                    app_id, depot_id, manifest_gid, decrypt=decrypt, manifest_request_code=manifest_code
-                )
-            except Exception as exc:
-                return ManifestError("Failed download", app_id, depot_id, manifest_gid, exc)
-            rets['depots'].append(depot_id)
-            manifest.name = depot_name
-            return manifest
-
+                    try:
+                        manifest = self.get_manifest(app_id, depot_id, manifest_gid, decrypt=decrypt, manifest_request_code=manifest_code)
+                    except Exception as exc:
+                        return ManifestError("Failed download", app_id, depot_id, manifest_gid, exc)
+                    app_lock[str(app_id)][str(depot_id)]= True
+                    rets['depots'].append(depot_id)
+                    manifest.name = depot_name
+                    return manifest
+                else:
+                    rets['depots'].append(depot_id)
+                    return None
         tasks = []
         shared_depots = {}
 
@@ -383,29 +384,26 @@ class MyCDNClient(CDNClient):
             else:
                 manifest_gid = depot_info.get('manifests', {}).get(branch,{}).get('gid')
             if manifest_gid is not None:
-                with lock:
-                    if not app_lock[str(app_id)].get(str(depot_id)):
-                        app_lock[str(app_id)][str(depot_id)]= True
-                        tasks.append(
-                            self.gpool.spawn(
-                                async_fetch_manifest,
-                                app_id,
-                                depot_id,
-                                manifest_gid,
-                                decrypt,
-                                depot_info.get('name', depot_id),
-                                branch_name=branch,
-                                branch_pass=None, # TODO: figure out how to pass this correctly
-                            )
-                        )
-                    else:
-                        rets['depots'].append(depot_id)
+                tasks.append(
+                    self.gpool.spawn(
+                        async_fetch_manifest,
+                        app_id,
+                        depot_id,
+                        manifest_gid,
+                        decrypt,
+                        depot_info.get('name', depot_id),
+                        branch_name=branch,
+                        branch_pass=None, # TODO: figure out how to pass this correctly
+                     )
+                )
 
         # collect results
         
 
         for task in tasks:
             result = task.get()
+            if not result:
+                continue
             if isinstance(result, ManifestError):
                 raise result
             rets['manifests'].append(result)
