@@ -297,9 +297,8 @@ class MyCDNClient(CDNClient):
 
         return resp.body.manifest_request_code
         
-    def get_manifests(self, app_id,depot, branch='public', password=None, filter_func=None, decrypt=False):
+    def get_manifests(self, app_id,depots, branch='public', password=None, filter_func=None, decrypt=False):
         #depots = self.get_app_depot_info(app_id)
-        depots = depot
         rets = {'manifests':[],'depots':[]}
         if not depots:
             return rets
@@ -337,7 +336,7 @@ class MyCDNClient(CDNClient):
                 )
             except Exception as exc:
                 return ManifestError("Failed download", app_id, depot_id, manifest_gid, exc)
-            app_lock[str(app_id)][depot_id]= True
+            app_lock[str(app_id)][str(depot_id)]= True
             rets['depots'].append(depot_id)
             manifest.name = depot_name
             return manifest
@@ -381,7 +380,7 @@ class MyCDNClient(CDNClient):
             else:
                 manifest_gid = depot_info.get('manifests', {}).get(branch,{}).get('gid')
             if manifest_gid is not None:
-                if not app_lock[str(app_id)].get(depot_id):
+                if not app_lock[str(app_id)].get(str(depot_id)):
                     tasks.append(
                         self.gpool.spawn(
                             async_fetch_manifest,
@@ -412,7 +411,7 @@ class MyCDNClient(CDNClient):
                 return (int(depot_id) in depot_ids
                         and (ffunc is None or ffunc(depot_id,  depot_info)))
 
-            rets['manifests'] += self.get_manifests(app_id,depot, filter_func=nested_ffunc)['manifests']
+            rets['manifests'] += self.get_manifests(app_id,depots, filter_func=nested_ffunc)['manifests']
         return rets
 log = logging.getLogger('DepotManifestGen')
 
