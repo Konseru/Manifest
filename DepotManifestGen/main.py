@@ -299,7 +299,7 @@ class MyCDNClient(CDNClient):
         
     def get_manifests(self, app_id,object, branch='public', password=None, filter_func=None, decrypt=False):
         depots = self.get_app_depot_info(app_id)
-        rets = {‘manifests’:[],'depots':[]}
+        rets = {'manifests':[],'depots':[]}
         if not depots:
             return rets
         is_enc_branch = False
