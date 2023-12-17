@@ -6,6 +6,7 @@ import os.path
 import logging
 import argparse
 import traceback
+import threading
 from pathlib import Path
 from binascii import crc32
 from gevent.pool import Pool as GPool
@@ -38,7 +39,7 @@ parser.add_argument('-r', '--remove-old', action='store_true', required=False)
 parser.add_argument('-n', '--retry', type=int, required=False, default=1)
 
 app_lock ={}
-lock = Lock()
+lock = threading.Lock()
 
 class BillingType:
     NoCost = 0
