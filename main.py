@@ -90,7 +90,9 @@ class ManifestAutoUpdate:
     remote_head = {}
     update_wait_time = 86400
     tags = set()
-
+    depot_tag_list = {}
+    delete_tag_list = set()
+    
     def __init__(self, credential_location=None, level=None, pool_num=None, retry_num=None, update_wait_time=None,
                  key=None, init_only=False, cli=False, app_id_list=None, user_list=None):
         if level:
@@ -224,6 +226,8 @@ class ManifestAutoUpdate:
                     app_repo.git.add('appinfo.vdf')
                     app_repo.index.commit(f'Update depot: {depot_id}_{manifest_gid}')
                     app_repo.create_tag(f'{depot_id}_{manifest_gid}')
+                    #尝试添加删除旧标签列表
+                    self.delete_tag_list |= self.depot_tag_list[depot_id]
         except KeyboardInterrupt:
             raise
         except:
@@ -286,6 +290,9 @@ class ManifestAutoUpdate:
             for i in filter(None, self.repo.git.ls_remote('--tags').split('\n')):
                 sha, tag = i.split()
                 tag = tag.split('/')[-1]
+                depot_id_, manifest_gid_ = tag.split('_')
+                self.depot_tag_list.setdefault(depot_id_, set())
+                self.depot_tag_list[depot_id_].add(tag)
                 self.tags.add(tag)
         return self.tags
 
