@@ -600,5 +600,5 @@ if __name__ == '__main__':
                        cli=args.cli, app_id_list=args.app_id_list, user_list=args.user_list).run(update=args.update)
     if not args.no_push:
         if not args.init_only:
-            push(delete_tag_list=delete_tag_list)
+            push(delete_tag=delete_tag_list)
         push_data()
