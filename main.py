@@ -451,23 +451,11 @@ class ManifestAutoUpdate:
         for app_id in app_id_list:
             if self.update_app_id_list and int(app_id) not in self.update_app_id_list:
                 continue
-            #改为get_manifests获取manifests
-            manifests = cdn.get_manifests(int(app_id))
-            if not manifests:
-                continue
-            depot_update = []
             with lock:
-                #检查depot是否已被获取
                 self.app_lock.setdefault(app_id, {})
-                for depot in manifests:
-                    depot_id = str(depot.depot_id)
-                    if not self.app_lock[app_id].get(depot_id):
-                        self.app_lock[app_id][depot_id] = True
-                        depot_update.append(depot)
+                manifests = cdn.get_manifests(int(app_id),self)
                 if int(app_id) not in self.user_info[username]['app']:
                     self.user_info[username]['app'].append(int(app_id))
-                if not depot_update:
-                    continue
             #尝试获取dlc或额外内容并添加到配置文件(仅添加拥有的DLC)
             app = fresh_resp['apps'][app_id]
             package = {'dlcs': [], 'packagedlcs': []}
@@ -483,12 +471,12 @@ class ManifestAutoUpdate:
                 for depotid, info in app['depots'].items():
                     if 'dlcappid' in info and 'manifests' in info:
                         dlcappids[depotid]=int(info['dlcappid'])
-                for depot in manifests:
-                    dlcappids.pop(str(depot.depot_id), None)
+                for depot in manifests['depots']:
+                    dlcappids.pop(depot, None)
                 for value in dlcappids.values():
                     if value in package['dlcs']:
                          package['dlcs'].remove(value)
-            for depot in depot_update:
+            for depot in manifests['manifests']:
                 depot_id = str(depot.depot_id)
                 manifest_gid = str(depot.gid)
                 self.set_depot_info(depot_id, manifest_gid)
