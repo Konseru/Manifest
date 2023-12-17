@@ -455,7 +455,7 @@ class ManifestAutoUpdate:
             with lock:
                 self.app_lock.setdefault(app_id, {})
                 manifests = cdn.get_manifests(int(app_id),self)
-                self.log.info(f'111111111111111: {manifests['manifests']}')
+                self.log.info(f'111111111111111: {manifests.manifests}')
                 if int(app_id) not in self.user_info[username]['app']:
                     self.user_info[username]['app'].append(int(app_id))
             #尝试获取dlc或额外内容并添加到配置文件(仅添加拥有的DLC)
@@ -478,7 +478,7 @@ class ManifestAutoUpdate:
                 for value in dlcappids.values():
                     if value in package['dlcs']:
                          package['dlcs'].remove(value)
-            self.log.info(f'22222222222222: {manifests['manifests']}')
+            self.log.info(f'22222222222222: {manifests.manifests}')
             for depot in manifests['manifests']:
                 depot_id = str(depot.depot_id)
                 manifest_gid = str(depot.gid)
