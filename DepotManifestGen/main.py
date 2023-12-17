@@ -272,7 +272,7 @@ class MyCDNClient(CDNClient):
 
     def get_app_depot_info(self, app_id):
         if app_id not in self.app_depots:
-            self.app_depots[app_id] = self.steam.get_product_info([app_id],timeout=30)['apps'][app_id].get('depots',{})
+            self.app_depots[app_id] = self.steam.get_product_info([app_id],timeout=30)['apps'][app_id]
         return self.app_depots[app_id]
 
     def get_manifest_request_code(self, app_id, depot_id, manifest_gid, branch='public', branch_password_hash=None):
@@ -417,7 +417,7 @@ class MyCDNClient(CDNClient):
             def nested_ffunc(depot_id, depot_info, depot_ids=depot_ids, ffunc=filter_func):
                 return (int(depot_id) in depot_ids
                         and (ffunc is None or ffunc(depot_id,  depot_info)))
-            mfs = self.get_manifests(app_id,depots, filter_func=nested_ffunc)
+            mfs = self.get_manifests(app_id,self.get_app_depot_info(app_id), filter_func=nested_ffunc)
             rets['manifests'] += mfs['manifests']
             rets['depots'] += mfs['depots']
         return rets
