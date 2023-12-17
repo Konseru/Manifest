@@ -406,10 +406,8 @@ class MyCDNClient(CDNClient):
 
         for task in tasks:
             result = task.get()
-            if not result:
-                continue
             if isinstance(result, ManifestError):
-                app_lock[str(app_id)].remove(str(result.depot_id))
+                app_lock[str(app_id)].pop(str(result.depot_id))
                 raise result
             rets['manifests'].append(result)
                 
