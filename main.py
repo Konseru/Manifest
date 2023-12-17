@@ -89,8 +89,7 @@ class ManifestAutoUpdate:
     retry_num = 3
     remote_head = {}
     update_wait_time = 86400
-    tags = set()
-    depot_tag_list = {}
+    tags = {}
     
     def __init__(self, credential_location=None, level=None, pool_num=None, retry_num=None, update_wait_time=None,
                  key=None, init_only=False, cli=False, app_id_list=None, user_list=None):
@@ -227,7 +226,7 @@ class ManifestAutoUpdate:
                     app_repo.create_tag(f'{depot_id}_{manifest_gid}')
                     #尝试添加删除旧标签列表
                 global delete_tag_list
-                delete_tag_list |= self.depot_tag_list.get(depot_id,set())
+                delete_tag_list |= self.tags.get(depot_id,set())
         except KeyboardInterrupt:
             raise
         except:
@@ -287,13 +286,12 @@ class ManifestAutoUpdate:
                 sha, tag = i.split()
                 tag = tag.split('/')[-1]
                 depot_id_, manifest_gid_ = tag.split('_')
-                self.depot_tag_list.setdefault(depot_id_, set())
-                self.depot_tag_list[depot_id_].add(tag)
-                self.tags.add(tag)
+                self.tags.setdefault(depot_id_, set())
+                self.tags[depot_id_].add(tag)
         return self.tags
 
     def check_manifest_exist(self, depot_id, manifest_gid):
-        for tag in set([i.name for i in self.repo.tags] + [*self.tags]):
+        for tag in set([i.name for i in self.repo.tags] + [*self.tags.get(depot_id,set())]):
             if f'{depot_id}_{manifest_gid}' == tag:
                 return True
         return False
