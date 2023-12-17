@@ -90,7 +90,6 @@ class ManifestAutoUpdate:
     remote_head = {}
     update_wait_time = 86400
     tags = set()
-    app_lock = {}
     depot_tag_list = {}
     
     def __init__(self, credential_location=None, level=None, pool_num=None, retry_num=None, update_wait_time=None,
@@ -452,17 +451,14 @@ class ManifestAutoUpdate:
         for app_id in app_id_list:
             if self.update_app_id_list and int(app_id) not in self.update_app_id_list:
                 continue
-            self.app_lock.setdefault(app_id, {})
+           
             manifests = {'manifests':[],'depots':[]}
             with lock:
-                manifests = cdn.get_manifests(int(app_id),self.app_lock[app_id])
+                manifests = cdn.get_manifests(int(app_id),fresh_resp['apps'][app_id].get('depots',{}))
                 if int(app_id) not in self.user_info[username]['app']:
                     self.user_info[username]['app'].append(int(app_id))
                 if not manifests['manifests']:
                     continue
-                for depot in manifests['manifests']:
-                    self.app_lock[app_id][str(depot.depot_id)] = True
-                
             #尝试获取dlc或额外内容并添加到配置文件(仅添加拥有的DLC)
             app = fresh_resp['apps'][app_id]
             package = {'dlcs': [], 'packagedlcs': []}
