@@ -300,8 +300,8 @@ class MyCDNClient(CDNClient):
 
         return resp.body.manifest_request_code
         
-    def get_manifests(self, app_id, branch='public', password=None, filter_func=None, decrypt=False):
-        depots = self.get_app_depot_info(app_id)
+    def get_manifests(self, app_id,depots, branch='public', password=None, filter_func=None, decrypt=False):
+        #depots = self.get_app_depot_info(app_id)
         rets = {'manifests':[],'depots':[]}
         if not depots:
             return rets
@@ -416,7 +416,7 @@ class MyCDNClient(CDNClient):
                 return (int(depot_id) in depot_ids
                         and (ffunc is None or ffunc(depot_id,  depot_info)))
 
-            rets['manifests'] += self.get_manifests(app_id, filter_func=nested_ffunc)['manifests']
+            rets['manifests'] += self.get_manifests(app_id,depots, filter_func=nested_ffunc)['manifests']
         return rets
 log = logging.getLogger('DepotManifestGen')
 
