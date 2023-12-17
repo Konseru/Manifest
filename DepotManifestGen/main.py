@@ -304,7 +304,7 @@ class MyCDNClient(CDNClient):
         if not depots:
             return rets
         global app_lock
-        app_lock.setdefault(app_id, {})
+        app_lock.setdefault(str(app_id), {})
         is_enc_branch = False
         if branch in depots.get('branches', {}):
            if int(depots['branches'][branch].get('pwdrequired', 0)) > 0:
