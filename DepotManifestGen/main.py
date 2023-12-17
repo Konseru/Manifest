@@ -297,9 +297,11 @@ class MyCDNClient(CDNClient):
 
         return resp.body.manifest_request_code
         
-    def get_manifests(self, app_id, branch='public', password=None, filter_func=None, decrypt=False):
+    def get_manifests(self, app_id,object, branch='public', password=None, filter_func=None, decrypt=False):
         depots = self.get_app_depot_info(app_id)
+        ret = {}
         manifests = []
+        depots = []
         if not depots:
             return manifests
         is_enc_branch = False
@@ -336,7 +338,8 @@ class MyCDNClient(CDNClient):
                 )
             except Exception as exc:
                 return ManifestError("Failed download", app_id, depot_id, manifest_gid, exc)
-
+            object.app_lock[str(app_id)][depot_id] = True
+            depots.append(depot_id)
             manifest.name = depot_name
             return manifest
 
@@ -378,20 +381,22 @@ class MyCDNClient(CDNClient):
                     manifest_gid = depot_info.get('manifests', {}).get('public',{}).get('gid')
             else:
                 manifest_gid = depot_info.get('manifests', {}).get(branch,{}).get('gid')
-
             if manifest_gid is not None:
-                tasks.append(
-                    self.gpool.spawn(
-                        async_fetch_manifest,
-                        app_id,
-                        depot_id,
-                        manifest_gid,
-                        decrypt,
-                        depot_info.get('name', depot_id),
-                        branch_name=branch,
-                        branch_pass=None, # TODO: figure out how to pass this correctly
-                  )
-              )
+                if not object.app_lock[str(app_id)].get(depot_id):
+                    tasks.append(
+                        self.gpool.spawn(
+                            async_fetch_manifest,
+                            app_id,
+                            depot_id,
+                            manifest_gid,
+                            decrypt,
+                            depot_info.get('name', depot_id),
+                            branch_name=branch,
+                            branch_pass=None, # TODO: figure out how to pass this correctly
+                        )
+                    )
+                else:
+                    depots.append(depot_id)
 
         # collect results
         
@@ -409,8 +414,9 @@ class MyCDNClient(CDNClient):
                         and (ffunc is None or ffunc(depot_id,  depot_info)))
 
             manifests += self.get_manifests(app_id, filter_func=nested_ffunc)
-
-        return manifests
+        ret['manifests'] = manifests
+        ret['depots'] = depots
+        return ret
 log = logging.getLogger('DepotManifestGen')
 
 
