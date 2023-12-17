@@ -477,12 +477,12 @@ class ManifestAutoUpdate:
                 depot_id = str(depot.depot_id)
                 manifest_gid = str(depot.gid)
                 self.set_depot_info(depot_id, manifest_gid)
-                with lock:
-                    if self.check_manifest_exist(depot_id, manifest_gid):
-                        self.log.info(f'Already got the manifest: {depot_id}_{manifest_gid}')
-                        continue
-                    flag = False
-                    job = gevent.Greenlet(LogExceptions(self.async_task), cdn, app_id,app,package,depot)
+                #with lock:
+                if self.check_manifest_exist(depot_id, manifest_gid):
+                    self.log.info(f'Already got the manifest: {depot_id}_{manifest_gid}')
+                    continue
+                flag = False
+                job = gevent.Greenlet(LogExceptions(self.async_task), cdn, app_id,app,package,depot)
                 job.rawlink(functools.partial(self.get_manifest_callback, username, app_id, depot_id, manifest_gid))
                 job_list.append(job)
                 gevent.idle()
