@@ -455,6 +455,7 @@ class ManifestAutoUpdate:
             with lock:
                 self.app_lock.setdefault(app_id, {})
                 manifests = cdn.get_manifests(int(app_id),self)
+                self.log.info(f"111111111111111111111111{manifests['manifests']}")
                 if int(app_id) not in self.user_info[username]['app']:
                     self.user_info[username]['app'].append(int(app_id))
             #尝试获取dlc或额外内容并添加到配置文件(仅添加拥有的DLC)
