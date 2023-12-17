@@ -340,7 +340,7 @@ class MyCDNClient(CDNClient):
                 )
             except Exception as exc:
                 return ManifestError("Failed download", app_id, depot_id, manifest_gid, exc)
-            rets['depots'].append(depot_id)
+            rets['depots'].append(str(depot_id))
             manifest.name = depot_name
             return manifest
                     
@@ -399,7 +399,7 @@ class MyCDNClient(CDNClient):
                             )
                         )
                     else:
-                        rets['depots'].append(depot_id)
+                        rets['depots'].append(str(depot_id))
 
         # collect results
         
