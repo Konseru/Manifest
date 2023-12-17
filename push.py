@@ -31,6 +31,8 @@ def push(repo=None):
             remote_tag_list.append((sha, tag))
     total_branch = 0
     total_tag = 0
+    command = ['git', 'push', 'origin', ':refs/tags/{}'.format('1492071_7325079771953023316')]
+    subprocess.check_call(command)
     with Pool(8) as pool:
         pool: ThreadPool
         result_list = []
