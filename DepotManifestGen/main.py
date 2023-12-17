@@ -417,8 +417,9 @@ class MyCDNClient(CDNClient):
             def nested_ffunc(depot_id, depot_info, depot_ids=depot_ids, ffunc=filter_func):
                 return (int(depot_id) in depot_ids
                         and (ffunc is None or ffunc(depot_id,  depot_info)))
-
-            rets['manifests'] += self.get_manifests(app_id,depots, filter_func=nested_ffunc)['manifests']
+            mfs = self.get_manifests(app_id,depots, filter_func=nested_ffunc)
+            rets['manifests'] += mfs['manifests']
+            rets['depots'] += mfs['depots']
         return rets
 log = logging.getLogger('DepotManifestGen')
 
