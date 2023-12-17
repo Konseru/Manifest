@@ -227,7 +227,7 @@ class ManifestAutoUpdate:
                     app_repo.index.commit(f'Update depot: {depot_id}_{manifest_gid}')
                     app_repo.create_tag(f'{depot_id}_{manifest_gid}')
                     #尝试添加删除旧标签列表
-                    delete_tag_list |= self.depot_tag_list[depot_id]
+                delete_tag_list |= self.depot_tag_list[depot_id]
         except KeyboardInterrupt:
             raise
         except:
@@ -468,8 +468,6 @@ class ManifestAutoUpdate:
                     self.user_info[username]['app'].append(int(app_id))
                 if not depot_update:
                     continue
-                
-            
             #尝试获取dlc或额外内容并添加到配置文件(仅添加拥有的DLC)
             app = fresh_resp['apps'][app_id]
             package = {'dlcs': [], 'packagedlcs': []}
