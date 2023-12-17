@@ -299,9 +299,9 @@ class MyCDNClient(CDNClient):
         
     def get_manifests(self, app_id,object, branch='public', password=None, filter_func=None, decrypt=False):
         depots = self.get_app_depot_info(app_id)
-        ret = {‘manifests’:[],'depots':[]}
+        rets = {‘manifests’:[],'depots':[]}
         if not depots:
-            return ret
+            return rets
         is_enc_branch = False
 
         if branch in depots.get('branches', {}):
@@ -337,7 +337,7 @@ class MyCDNClient(CDNClient):
             except Exception as exc:
                 return ManifestError("Failed download", app_id, depot_id, manifest_gid, exc)
             object.app_lock[str(app_id)][depot_id] = True
-            ret['depots'].append(depot_id)
+            rets['depots'].append(depot_id)
             manifest.name = depot_name
             return manifest
 
@@ -394,7 +394,7 @@ class MyCDNClient(CDNClient):
                         )
                     )
                 else:
-                    ret['depots'].append(depot_id)
+                    rets['depots'].append(depot_id)
 
         # collect results
         
@@ -403,7 +403,7 @@ class MyCDNClient(CDNClient):
             result = task.get()
             if isinstance(result, ManifestError):
                 raise result
-            ret['manifests'].append(result)
+            rets['manifests'].append(result)
 
         # load shared depot manifests
         for app_id, depot_ids in iteritems(shared_depots):
@@ -411,7 +411,7 @@ class MyCDNClient(CDNClient):
                 return (int(depot_id) in depot_ids
                         and (ffunc is None or ffunc(depot_id,  depot_info)))
 
-            ret['manifests'] += self.get_manifests(app_id, filter_func=nested_ffunc)
+            rets['manifests'] += self.get_manifests(app_id, filter_func=nested_ffunc)
         return ret
 log = logging.getLogger('DepotManifestGen')
 
