@@ -85,7 +85,6 @@ class ManifestAutoUpdate:
     key_path = ROOT / 'KEY'
     git_crypt_path = ROOT / ('git-crypt' + ('.exe' if platform.system().lower() == 'windows' else ''))
     repo = git.Repo()
-    app_lock = {}
     pool_num = 8
     retry_num = 3
     remote_head = {}
@@ -453,8 +452,7 @@ class ManifestAutoUpdate:
                 continue
             manifests = {'manifests':[],'depots':[]}
             with lock:
-                self.app_lock.setdefault(app_id, {})
-                manifests = cdn.get_manifests(int(app_id),self)
+                manifests = cdn.get_manifests(int(app_id))
                 self.log.info(f"111111111111111111111111{manifests['manifests']}")
                 if int(app_id) not in self.user_info[username]['app']:
                     self.user_info[username]['app'].append(int(app_id))
