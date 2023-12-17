@@ -10,7 +10,7 @@ from multiprocessing.dummy import Pool, Lock
 lock = Lock()
 
 
-def push(repo=None):
+def push(repo=None,delete_tag_list=set()):
     if not repo:
         repo = git.Repo()
     app_sha = None
@@ -31,8 +31,6 @@ def push(repo=None):
             remote_tag_list.append((sha, tag))
     total_branch = 0
     total_tag = 0
-    command = ['git', 'push', 'origin', ':refs/tags/{}'.format('1492071_7325079771953023316')]
-    subprocess.check_call(command)
     with Pool(8) as pool:
         pool: ThreadPool
         result_list = []
@@ -49,6 +47,8 @@ def push(repo=None):
                         print(local_head.name, local_head.commit.hexsha)
                     result_list.append(
                         pool.map_async(subprocess.check_call, (['git', 'push', 'origin', local_head.name],)))
+        for delete_tag in delete_tag_list:
+            pool.map_async(subprocess.check_call, (['git', 'push', 'origin', f':refs/tags/{delete_tag}'],))
         for local_tag in repo.tags:
             for remote_sha, remote_tag in remote_tag_list:
                 if remote_tag == local_tag.name:
