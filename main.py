@@ -452,7 +452,7 @@ class ManifestAutoUpdate:
             with lock:
                 if manifests['depots']:
                     if int(app_id) not in self.user_info[username]['app']:
-                    self.user_info[username]['app'].append(int(app_id))
+                        self.user_info[username]['app'].append(int(app_id))
                 if not manifests['manifests']:
                     continue
                 
