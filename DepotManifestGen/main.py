@@ -36,8 +36,6 @@ parser.add_argument('-C', '--credential-location', required=False)
 parser.add_argument('-r', '--remove-old', action='store_true', required=False)
 parser.add_argument('-n', '--retry', type=int, required=False, default=1)
 
-app_lock = {}
-
 class BillingType:
     NoCost = 0
     BillOnceOnly = 1
@@ -298,11 +296,9 @@ class MyCDNClient(CDNClient):
 
         return resp.body.manifest_request_code
         
-    def get_manifests(self, app_id, branch='public', password=None, filter_func=None, decrypt=False):
+    def get_manifests(self, app_id,app_lock, branch='public', password=None, filter_func=None, decrypt=False):
         depots = self.get_app_depot_info(app_id)
         rets = {'manifests':[],'depots':[]}
-        global app_lock
-        app_lock.setdefault(str(app_id), {})
         if not depots:
             return rets
         is_enc_branch = False
@@ -337,7 +333,6 @@ class MyCDNClient(CDNClient):
                 )
             except Exception as exc:
                 return ManifestError("Failed download", app_id, depot_id, manifest_gid, exc)
-            app_lock[str(app_id)][depot_id] = True
             rets['depots'].append(depot_id)
             manifest.name = depot_name
             return manifest
@@ -381,7 +376,7 @@ class MyCDNClient(CDNClient):
             else:
                 manifest_gid = depot_info.get('manifests', {}).get(branch,{}).get('gid')
             if manifest_gid is not None:
-                if not app_lock[str(app_id)].get(depot_id):
+                if not app_lock.get(depot_id):
                     tasks.append(
                         self.gpool.spawn(
                             async_fetch_manifest,
