@@ -22,6 +22,7 @@ from steam.guard import generate_twofactor_code
 from DepotManifestGen.main import MySteamClient, MyCDNClient, get_manifest, BillingType, Result
 
 lock = Lock()
+delete_tag_list = set()
 #改大100倍修复添加多账号导致堆栈溢出
 sys.setrecursionlimit(10000000)
 parser = argparse.ArgumentParser()
@@ -227,7 +228,7 @@ class ManifestAutoUpdate:
                     app_repo.index.commit(f'Update depot: {depot_id}_{manifest_gid}')
                     app_repo.create_tag(f'{depot_id}_{manifest_gid}')
                     #尝试添加删除旧标签列表
-                    self.delete_tag_list |= self.depot_tag_list[depot_id]
+                    delete_tag_list |= self.depot_tag_list[depot_id]
         except KeyboardInterrupt:
             raise
         except:
@@ -614,5 +615,5 @@ if __name__ == '__main__':
                        cli=args.cli, app_id_list=args.app_id_list, user_list=args.user_list).run(update=args.update)
     if not args.no_push:
         if not args.init_only:
-            push()
+            push(delete_tag_list=delete_tag_list)
         push_data()
