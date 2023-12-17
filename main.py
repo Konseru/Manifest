@@ -476,7 +476,7 @@ class ManifestAutoUpdate:
                 for value in dlcappids.values():
                     if value in package['dlcs']:
                          package['dlcs'].remove(value)
-            for depot in manifestss['manifests']:
+            for depot in manifestss['manifestss']:
                 self.log.info(f"111111111111111111111111{depot}")
                 depot_id = str(depot.depot_id)
                 manifest_gid = str(depot.gid)
