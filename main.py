@@ -447,13 +447,11 @@ class ManifestAutoUpdate:
                 continue
             app = fresh_resp['apps'][app_id]
             manifests = cdn.get_manifests(int(app_id),app)
-            with lock:
-                if manifests['depots']:
-                    if int(app_id) not in self.user_info[username]['app']:
-                        self.user_info[username]['app'].append(int(app_id))
-                if not manifests['manifests']:
-                    continue
-                
+            if manifests['depots']:
+                if int(app_id) not in self.user_info[username]['app']:
+                    self.user_info[username]['app'].append(int(app_id))
+            if not manifests['manifests']:
+                continue       
             #尝试获取dlc或额外内容并添加到配置文件(仅添加拥有的DLC)
             package = {'dlcs': [], 'packagedlcs': []}
             dlcappids = {}
