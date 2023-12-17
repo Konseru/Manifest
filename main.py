@@ -451,6 +451,7 @@ class ManifestAutoUpdate:
         for app_id in app_id_list:
             if self.update_app_id_list and int(app_id) not in self.update_app_id_list:
                 continue
+            manifests = {}
             with lock:
                 self.app_lock.setdefault(app_id, {})
                 manifests = cdn.get_manifests(int(app_id),self)
