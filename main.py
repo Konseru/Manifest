@@ -226,6 +226,7 @@ class ManifestAutoUpdate:
                     app_repo.index.commit(f'Update depot: {depot_id}_{manifest_gid}')
                     app_repo.create_tag(f'{depot_id}_{manifest_gid}')
                     #尝试添加删除旧标签列表
+                global delete_tag_list
                 delete_tag_list |= self.depot_tag_list.get(depot_id,set())
         except KeyboardInterrupt:
             raise
