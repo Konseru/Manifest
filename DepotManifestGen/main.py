@@ -300,8 +300,9 @@ class MyCDNClient(CDNClient):
 
         return resp.body.manifest_request_code
         
-    def get_manifests(self, app_id,depots, branch='public', password=None, filter_func=None, decrypt=False):
+    def get_manifests(self, app_id,app, branch='public', password=None, filter_func=None, decrypt=False):
         #depots = self.get_app_depot_info(app_id)
+        depots = app.get('depots',{})
         rets = {'manifests':[],'depots':[]}
         if not depots:
             return rets
