@@ -37,6 +37,8 @@ parser.add_argument('-r', '--remove-old', action='store_true', required=False)
 parser.add_argument('-n', '--retry', type=int, required=False, default=1)
 
 app_lock ={}
+lock = Lock()
+
 class BillingType:
     NoCost = 0
     BillOnceOnly = 1
@@ -380,21 +382,22 @@ class MyCDNClient(CDNClient):
             else:
                 manifest_gid = depot_info.get('manifests', {}).get(branch,{}).get('gid')
             if manifest_gid is not None:
-                if not app_lock[str(app_id)].get(str(depot_id)):
-                    tasks.append(
-                        self.gpool.spawn(
-                            async_fetch_manifest,
-                            app_id,
-                            depot_id,
-                            manifest_gid,
-                            decrypt,
-                            depot_info.get('name', depot_id),
-                            branch_name=branch,
-                            branch_pass=None, # TODO: figure out how to pass this correctly
+                with lock:
+                    if not app_lock[str(app_id)].get(str(depot_id)):
+                        tasks.append(
+                            self.gpool.spawn(
+                                async_fetch_manifest,
+                                app_id,
+                                depot_id,
+                                manifest_gid,
+                                decrypt,
+                                depot_info.get('name', depot_id),
+                                branch_name=branch,
+                                branch_pass=None, # TODO: figure out how to pass this correctly
+                            )
                         )
-                    )
-                else:
-                    rets['depots'].append(depot_id)
+                    else:
+                        rets['depots'].append(depot_id)
 
         # collect results
         
