@@ -10,7 +10,7 @@ from multiprocessing.dummy import Pool, Lock
 lock = Lock()
 
 
-def push(repo=None,delete_tag):
+def push(repo=None,delete_tag=set()):
     if not repo:
         repo = git.Repo()
     app_sha = None
