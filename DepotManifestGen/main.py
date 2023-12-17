@@ -301,11 +301,10 @@ class MyCDNClient(CDNClient):
     def get_manifests(self, app_id, branch='public', password=None, filter_func=None, decrypt=False):
         depots = self.get_app_depot_info(app_id)
         rets = {'manifests':[],'depots':[]}
-        app_lock.setdefault(str(app_id), {})
         if not depots:
             return rets
         is_enc_branch = False
-
+        app_lock.setdefault(str(app_id), {})
         if branch in depots.get('branches', {}):
            if int(depots['branches'][branch].get('pwdrequired', 0)) > 0:
                is_enc_branch = True
