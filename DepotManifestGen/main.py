@@ -336,7 +336,7 @@ class MyCDNClient(CDNClient):
 
             try:
                 manifest = self.get_manifest(
-                    app_id, depot_id, manifest_gid, decrypt=decrypt, manifest_request_code=manifest_code
+                    app_id, depot_id, int(manifest_gid), decrypt=decrypt, manifest_request_code=manifest_code
                 )
             except Exception as exc:
                 return ManifestError("Failed download", app_id, depot_id, manifest_gid, exc)
