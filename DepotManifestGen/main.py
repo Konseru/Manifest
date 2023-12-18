@@ -1,4 +1,5 @@
 import vdf
+import re
 import json
 import gevent
 import struct
@@ -366,8 +367,9 @@ class MyCDNClient(CDNClient):
                 continue
 
             # accumulate the shared depots
+            
             if 'depotfromapp' in depot_info:
-                shared_depots.setdefault(int(depot_info['depotfromapp']), set()).add(depot_id)
+                shared_depots.setdefault(int(re.search(r'\d+', depot_info['depotfromapp'])), set()).add(depot_id)
                 continue
 
 
