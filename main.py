@@ -232,35 +232,7 @@ class ManifestAutoUpdate:
         except:
             logging.error(traceback.format_exc())
 
-    def Update_config(self,app_id,depot_id,package):
-        app_path = self.ROOT / f'depots/{app_id}'
-        depotint = int(depot_id)
-        self.init_app_repo(app_id)
-        if os.path.isfile(app_path / 'config.json'):
-            with open(app_path / 'config.json') as f:
-                config = json.load(f)
-                config['dlcs'] = package['dlcs']
-                config['packagedlcs'] = package['packagedlcs']
-                if not depotint in config['depots']:
-                    config['depots'].append(depotint)
-        else:
-        #添加配置文件config.json
-            json_str = f'''
-            {{
-            "appId": {app_id},
-            "depots": [{depotint}],
-            "dlcs": [],
-            "packagedlcs": []
-            }}'''
-            config = json.loads(json_str)
-            config['dlcs'] = package['dlcs']
-            config['packagedlcs'] = package['packagedlcs']
-        with open(app_path / 'config.json', 'w') as f:
-            json.dump(config, f)
-        app_repo = git.Repo(app_path)
-        with lock:
-            app_repo.git.add('config.json')
-            
+
         
     def set_depot_info(self, depot_id, manifest_gid):
         with lock:
@@ -507,8 +479,6 @@ class ManifestAutoUpdate:
             for depot in manifests['manifests']:
                 depot_id = str(depot.depot_id)
                 manifest_gid = str(depot.gid)
-                self.Update_config(app_id,depot_id,package)
-                continue
                 self.set_depot_info(depot_id, manifest_gid)
                 #with lock:
                 if self.check_manifest_exist(depot_id, manifest_gid):
