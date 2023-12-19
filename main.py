@@ -232,7 +232,7 @@ class ManifestAutoUpdate:
         except:
             logging.error(traceback.format_exc())
 
-    def Update_config(self,appid,package):
+    def Update_config(self,app_id,package):
         app_path = self.ROOT / f'depots/{app_id}'
         if not app_path.exists():
             self.repo.git.worktree('add', '-b', app_id, app_path, 'app')
@@ -504,7 +504,7 @@ class ManifestAutoUpdate:
                     if info.get('depots',{}):
                         package['packagedlcs'].append(int(appid))
                         package['dlcs'].remove(int(appid))
-            self.Update_config(appid,package)
+            self.Update_config(app_id,package)
             continue
             for depot in manifests['manifests']:
                 depot_id = str(depot.depot_id)
