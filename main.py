@@ -504,7 +504,7 @@ class ManifestAutoUpdate:
                     if info.get('depots',{}):
                         package['packagedlcs'].append(int(appid))
                         package['dlcs'].remove(int(appid))
-            Update_config(self,appid,package)
+            self.Update_config(appid,package)
             continue
             for depot in manifests['manifests']:
                 depot_id = str(depot.depot_id)
