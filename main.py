@@ -235,8 +235,7 @@ class ManifestAutoUpdate:
     def Update_config(self,app_id,depot_id,package):
         app_path = self.ROOT / f'depots/{app_id}'
         depotint = int(depot_id)
-        if not app_path.exists():
-            self.repo.git.worktree('add', '-b', app_id, app_path, 'app')
+        self.init_app_repo(app_id)
         if os.path.isfile(app_path / 'config.json'):
             with open(app_path / 'config.json') as f:
                 config = json.load(f)
