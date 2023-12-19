@@ -231,7 +231,37 @@ class ManifestAutoUpdate:
             raise
         except:
             logging.error(traceback.format_exc())
-       
+
+    def Update_config(self,appid,package):
+        app_path = self.ROOT / f'depots/{app_id}'
+        if not app_path.exists():
+            self.repo.git.worktree('add', '-b', app_id, app_path, 'app')
+        if os.path.isfile(app_path / 'config.json'):
+            with open(app_path / 'config.json') as f:
+                config = json.load(f)
+                config['dlcs'] = package['dlcs']
+                config['packagedlcs'] = package['packagedlcs']
+                if not depotint in config['depots']:
+                    config['depots'].append(depotint)
+        else:
+        #添加配置文件config.json
+            json_str = f'''
+            {{
+            "appId": {app_id},
+            "depots": [{depotint}],
+            "dlcs": [],
+            "packagedlcs": []
+            }}'''
+            config = json.loads(json_str)
+            config['dlcs'] = package['dlcs']
+            config['packagedlcs'] = package['packagedlcs']
+        with open(app_path / 'config.json', 'w') as f:
+            json.dump(config, f)
+        app_repo = git.Repo(app_path)
+        with lock:
+            app_repo.git.add('config.json')
+            
+        
     def set_depot_info(self, depot_id, manifest_gid):
         with lock:
             self.app_info[depot_id] = manifest_gid
@@ -312,6 +342,8 @@ class ManifestAutoUpdate:
                     self.repo.git.branch('-d', app_id)
                 self.repo.git.worktree('add', '-b', app_id, app_path, 'app')
 
+    
+        
     def retry(self, fun, *args, retry_num=-1, **kwargs):
         while retry_num:
             try:
@@ -471,6 +503,8 @@ class ManifestAutoUpdate:
                     if info.get('depots',{}):
                         package['packagedlcs'].append(int(appid))
                         package['dlcs'].remove(int(appid))
+            Update_config(self,appid,package)
+            continue
             for depot in manifests['manifests']:
                 depot_id = str(depot.depot_id)
                 manifest_gid = str(depot.gid)
