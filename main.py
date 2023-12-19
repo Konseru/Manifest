@@ -496,7 +496,7 @@ class ManifestAutoUpdate:
                         dlcappids[depotid] = dlcid
                         if dlcid in dlc_list:
                             dlc_list.remove(dlcid)
-                for depotid, value in dlcappids:
+                for depotid, value in dlcappids.items():
                     if not depotid in manifests['depots'] and value in package['dlcs']:
                         package['dlcs'].remove(value)
                 element = self.retry(steam.get_product_info, dlc_list,timeout=30, retry_num=self.retry_num).get('apps',{})
