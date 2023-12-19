@@ -471,11 +471,12 @@ class ManifestAutoUpdate:
                 for depotid, value in dlcappids.items():
                     if not depotid in manifests['depots'] and value in package['dlcs']:
                         package['dlcs'].remove(value)
-                element = self.retry(steam.get_product_info, dlc_list,timeout=30, retry_num=self.retry_num).get('apps',{})
-                for appid, info in element.items():
-                    if info.get('depots',{}):
-                        package['packagedlcs'].append(int(appid))
-                        package['dlcs'].remove(int(appid))
+                element = self.retry(steam.get_product_info, dlc_list,timeout=30, retry_num=self.retry_num)
+                if element:
+                    for appid, info in element.get('apps',{}).items():
+                        if info.get('depots',{}):
+                            package['packagedlcs'].append(int(appid))
+                            package['dlcs'].remove(int(appid))
             for depot in manifests['manifests']:
                 depot_id = str(depot.depot_id)
                 manifest_gid = str(depot.gid)
