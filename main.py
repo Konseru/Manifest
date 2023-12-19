@@ -458,19 +458,19 @@ class ManifestAutoUpdate:
             if 'extended' in app and 'listofdlc' in app['extended']:
                 dlc_list = list(map(int, app['extended']['listofdlc'].split(',')))
                 package['dlcs'] = dlc_list
+                for depotid, info in app['depots'].items():
+                    if 'dlcappid' in info and 'manifests' in info:
+                        dlcid = int(info['dlcappid'])
+                        dlcappids[depotid] = dlcid
+                        dlc_list.remove(dlcid)
+                for depotid, value in dlcappids:
+                    if not depotid in manifests['depots']:
+                        package['dlcs'].remove(value)
                 element = self.retry(steam.get_product_info, dlc_list,timeout=30, retry_num=self.retry_num).get('apps',{})
                 for appid, info in element.items():
                     if info.get('depots',{}):
                         package['packagedlcs'].append(int(appid))
                         package['dlcs'].remove(int(appid))
-                for depotid, info in app['depots'].items():
-                    if 'dlcappid' in info and 'manifests' in info:
-                        dlcappids[depotid]=int(info['dlcappid'])
-                for depot in manifests['depots']:
-                    dlcappids.pop(depot, None)
-                for value in dlcappids.values():
-                    if value in package['dlcs']:
-                         package['dlcs'].remove(value)
             for depot in manifests['manifests']:
                 depot_id = str(depot.depot_id)
                 manifest_gid = str(depot.gid)
