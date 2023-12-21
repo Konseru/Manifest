@@ -426,7 +426,7 @@ class ManifestAutoUpdate:
         if result != EResult.OK:
             return
         self.log.info(f'User {username}: Waiting to initialize the cdn client!')
-        cdn = self.retry(MyCDNClient, steam,tags,repo, retry_num=self.retry_num)
+        cdn = self.retry(MyCDNClient, steam,self.tags,self.repo, retry_num=self.retry_num)
         if not cdn:
             logging.error(f'User {username}: Failed to initialize cdn!')
             return
