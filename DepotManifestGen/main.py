@@ -396,7 +396,7 @@ class MyCDNClient(CDNClient):
                 with lock:
                     if not app_lock[str(app_id)].get(str(depot_id)):
                         if self.check_manifest_exist(str(depot_id), manifest_gid):
-                            self.log.info(f'Already got the manifest: {depot_id}_{manifest_gid}')
+                            log.info(f'Already got the manifest: {depot_id}_{manifest_gid}')
                             rets['depots'].append(str(depot_id))
                             continue
                         app_lock[str(app_id)][str(depot_id)]= True
