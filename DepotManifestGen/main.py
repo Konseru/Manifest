@@ -349,7 +349,6 @@ class MyCDNClient(CDNClient):
                 )
             except Exception as exc:
                 return ManifestError("Failed download", app_id, depot_id, manifest_gid, exc)
-            rets['depots'].append(str(depot_id))
             manifest.name = depot_name
             return manifest
                     
@@ -395,11 +394,11 @@ class MyCDNClient(CDNClient):
             if manifest_gid is not None:
                 with lock:
                     if not app_lock[str(app_id)].get(str(depot_id)):
+                        app_lock[str(app_id)][str(depot_id)]= True
                         if self.check_manifest_exist(str(depot_id), manifest_gid):
                             log.info(f'Already got the manifest: {depot_id}_{manifest_gid}')
-                            rets['depots'].append(str(depot_id))
+                         
                             continue
-                        app_lock[str(app_id)][str(depot_id)]= True
                         tasks.append(
                             self.gpool.spawn(
                                 async_fetch_manifest,
@@ -412,8 +411,7 @@ class MyCDNClient(CDNClient):
                                 branch_pass=None, # TODO: figure out how to pass this correctly
                             )
                         )
-                    else:
-                        rets['depots'].append(str(depot_id))
+              
 
         # collect results
         
@@ -424,6 +422,8 @@ class MyCDNClient(CDNClient):
                 app_lock[str(app_id)].pop(str(result.depot_id))
                 raise result
             rets['manifests'].append(result)
+        for depot in app_lock[str(app_id)]:
+            rets['depots'].append(depot)
                 
 
         # load shared depot manifests
