@@ -426,7 +426,7 @@ class ManifestAutoUpdate:
         if result != EResult.OK:
             return
         self.log.info(f'User {username}: Waiting to initialize the cdn client!')
-        cdn = self.retry(MyCDNClient, steam, retry_num=self.retry_num)
+        cdn = self.retry(MyCDNClient, steam,tags,repo, retry_num=self.retry_num)
         if not cdn:
             logging.error(f'User {username}: Failed to initialize cdn!')
             return
@@ -482,9 +482,9 @@ class ManifestAutoUpdate:
                 manifest_gid = str(depot.gid)
                 self.set_depot_info(depot_id, manifest_gid)
                 #with lock:
-                if self.check_manifest_exist(depot_id, manifest_gid):
-                    self.log.info(f'Already got the manifest: {depot_id}_{manifest_gid}')
-                    continue
+                #if self.check_manifest_exist(depot_id, manifest_gid):
+                    #self.log.info(f'Already got the manifest: {depot_id}_{manifest_gid}')
+                    #continue
                 flag = False
                 job = gevent.Greenlet(LogExceptions(self.async_task), cdn, app_id,app,package,depot)
                 job.rawlink(functools.partial(self.get_manifest_callback, username, app_id, depot_id, manifest_gid))
