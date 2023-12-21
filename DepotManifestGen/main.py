@@ -224,7 +224,7 @@ class MySteamClient(SteamClient):
 
 class MyCDNClient(CDNClient):
     _LOG = logging.getLogger('MyCDNClient')
-    def __init__(self, client):
+    def __init__(self, client,tags,repo):
         """CDNClient allows loading and reading of manifests for Steam apps are used
         to list and download content
 
@@ -232,7 +232,9 @@ class MyCDNClient(CDNClient):
         :type  client: :class:`.SteamClient`
         """
         self.gpool = GPool(8)            #: task pool
-        self.steam = client              #: SteamClient instance
+        self.steam = client    #: SteamClient instance
+        self.tags = tags
+        self.repo = repo
         if self.steam:
             self.cell_id = self.steam.cell_id
 
@@ -276,6 +278,12 @@ class MyCDNClient(CDNClient):
             self.app_depots[app_id] = self.steam.get_product_info([app_id],timeout=30)['apps'][app_id]
         return self.app_depots[app_id]
 
+    def check_manifest_exist(self, depot_id, manifest_gid):
+        for tag in set([i.name for i in self.repo.tags] + [*self.tags.get(depot_id,set())]):
+            if f'{depot_id}_{manifest_gid}' == tag:
+                return True
+        return False
+        
     def get_manifest_request_code(self, app_id, depot_id, manifest_gid, branch='public', branch_password_hash=None):
         body = {
             "app_id":      int(app_id),
@@ -387,6 +395,10 @@ class MyCDNClient(CDNClient):
             if manifest_gid is not None:
                 with lock:
                     if not app_lock[str(app_id)].get(str(depot_id)):
+                        if self.check_manifest_exist(str(depot_id), manifest_gid):
+                            self.log.info(f'Already got the manifest: {depot_id}_{manifest_gid}')
+                            rets['depots'].append(str(depot_id))
+                            continue
                         app_lock[str(app_id)][str(depot_id)]= True
                         tasks.append(
                             self.gpool.spawn(
