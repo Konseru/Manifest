@@ -422,8 +422,9 @@ class MyCDNClient(CDNClient):
             if isinstance(result, ManifestError):
                 raise result
             rets['manifests'].append(result)
-        for depot in app_lock[str(app_id)]:
-            rets['depots'].append(depot)
+        with lock:
+            for depot in app_lock[str(app_id)]:
+                rets['depots'].append(depot)
                 
 
         # load shared depot manifests
