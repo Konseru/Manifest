@@ -450,11 +450,7 @@ class ManifestAutoUpdate:
             if self.update_app_id_list and int(app_id) not in self.update_app_id_list:
                 continue
             app = fresh_resp['apps'][app_id]
-            manifests = cdn.get_manifests(int(app_id),app)
-            if manifests['depots']:
-                with lock:
-                    if int(app_id) not in self.user_info[username]['app']:
-                        self.user_info[username]['app'].append(int(app_id))
+            manifests = cdn.get_manifests(int(app_id),app)    
             if not manifests['manifests']:
                 continue       
             #尝试获取dlc或额外内容并添加到配置文件(仅添加拥有的DLC)
@@ -482,10 +478,9 @@ class ManifestAutoUpdate:
                 depot_id = str(depot.depot_id)
                 manifest_gid = str(depot.gid)
                 self.set_depot_info(depot_id, manifest_gid)
-                #with lock:
-                #if self.check_manifest_exist(depot_id, manifest_gid):
-                    #self.log.info(f'Already got the manifest: {depot_id}_{manifest_gid}')
-                    #continue
+                with lock:
+                    if int(app_id) not in self.user_info[username]['app']:
+                        self.user_info[username]['app'].append(int(app_id))
                 flag = False
                 job = gevent.Greenlet(LogExceptions(self.async_task), cdn, app_id,app,package,depot)
                 job.rawlink(functools.partial(self.get_manifest_callback, username, app_id, depot_id, manifest_gid))
