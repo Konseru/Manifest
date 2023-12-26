@@ -523,7 +523,7 @@ class ManifestAutoUpdate:
                         self.log.info('The program is finished and will exit in 10 seconds!')
                         time.sleep(10)
                         break
-                    self.save()
+                    #self.save()
                     time.sleep(1)
             except KeyboardInterrupt:
                 with lock:
