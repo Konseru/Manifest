@@ -85,10 +85,13 @@ jobs:
            us = json.load(open('data/userinfo.json'))
            for u, p, s in itertools.zip_longest([i or None for i in (os.environ.get('users') or '').split(' ')],[i or None for i in (os.environ.get('password') or '').split(' ')],[i or None for i in (os.environ.get('ssfn') or '').split(' ')]):
               if u:
-                  if u in j and u in us and (j[u][1] != s or j[u][0] != p) and not us[u]['enable']:
-                      us[u]['enable'] = True
-                      us[u].pop('status')
-                  j.update({u:[p, s]})
+                  if u in j:
+                      if u in us and (j[u][1] != s or j[u][0] != p) and not us[u]['enable']:
+                         us[u]['enable'] = True
+                         us[u].pop('status')
+                         j.update({u:[p, s]})
+                  else:
+                      j.update({u:[p, s]})
            json.dump(us, open('data/userinfo.json', 'w'))
            json.dump(j, open('data/users.json', 'w'))"
         #run: python -c "import os;import json;import itertools;j=json.load(open('data/users.json'));j.update({u:[p,s] for u,p,s in itertools.zip_longest([i or None for i in (os.environ.get('users') or '').split(',')],[i or None for i in (os.environ.get('password') or '').split(',')],[i or None for i in (os.environ.get('ssfn') or '').split(',')]) if u});json.dump(j,open('data/users.json','w'))"
