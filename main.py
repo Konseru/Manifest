@@ -167,7 +167,7 @@ class ManifestAutoUpdate:
         self.app_info = MyJson(self.app_info_path)
         self.two_factor = MyJson(self.two_factor_path)
         self.appuserlist = MyJson(self.appuserlist_path)
-        #self.Avalidaccountlist = MyJson(self.Avalidaccount_path)
+        self.Avalidaccountlist = MyJson(self.Avalidaccount_path)
         self.log.info('Waiting to get remote tags!')
         self.get_remote_tags()
         self.update_user_list = [*user_list] if user_list else []
