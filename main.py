@@ -574,7 +574,7 @@ class ManifestAutoUpdate:
                         update_app_user[int(app_id)].append(user)
                         update_user_set.add(user)
                         #导出可以账户和密码到Avalidaccountlist
-                        self.Avalidaccountlist.update({user:self.account_info[user][0]})
+                        #self.Avalidaccountlist.update({user:self.account_info[user][0]})
         self.log.debug(str(update_app_user))
         for user in self.account_info:
             if user not in self.user_info:
@@ -586,7 +586,7 @@ class ManifestAutoUpdate:
             self.log.info(f'{app_id}: {",".join(user_list)}')
         self.appuserlist.dump()
         #导出可以账户和密码到Avalidaccountlist
-        self.Avalidaccountlist.dump()
+        #self.Avalidaccountlist.dump()
         self.log.info(f'{len(update_app_user)} app and {len(self.update_user_list)} users need to update!')
         return self.update_user_list
 
