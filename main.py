@@ -465,7 +465,7 @@ class ManifestAutoUpdate:
                     if 'dlcappid' in info and 'manifests' in info:
                         dlcid = int(info['dlcappid'])
                         if not manifests['depots'].get(depotid,{}):
-                            if value in package['dlcs']:
+                            if dlcid in package['dlcs']:
                                 package['dlcs'].remove(dlcid)
                         if dlcid in dlc_list:
                             dlc_list.remove(dlcid)
