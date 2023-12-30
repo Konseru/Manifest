@@ -36,7 +36,7 @@ def push(repo=None,delete_tag=set()):
         pool: ThreadPool
         result_list = []
         for remote_sha, remote_head in remote_head_list:
-            if not remote_head in ["mian", "app", "data"]:
+            if not remote_head in ["main", "app", "data"]:
                result_list.append(pool.map_async(subprocess.check_call, (['git', 'push', 'origin', f':{remote_head}'],)))     
         for local_head in repo.heads:
             if local_head.name.isdecimal():
