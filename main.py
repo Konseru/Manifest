@@ -462,6 +462,7 @@ class ManifestAutoUpdate:
             if 'extended' in app and 'listofdlc' in app['extended']:
                 dlc_list = list(map(int, app['extended']['listofdlc'].split(',')))
                 package['dlcs'] = dlc_list
+                self.log.info(f"{package['dlcs']}")
                 for depotid, info in app['depots'].items():
                     if 'dlcappid' in info and 'manifests' in info:
                         dlcid = int(info['dlcappid'])
@@ -477,7 +478,7 @@ class ManifestAutoUpdate:
                         if info.get('depots',{}):
                             package['packagedlcs'].append(int(appid))
                             package['dlcs'].remove(int(appid))
-            self.log.info(f"{package['dlcs']}")
+            return
             for depot in manifests['manifests']:
                 depot_id = str(depot.depot_id)
                 manifest_gid = str(depot.gid)
