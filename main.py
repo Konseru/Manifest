@@ -477,6 +477,7 @@ class ManifestAutoUpdate:
                         if info.get('depots',{}):
                             package['packagedlcs'].append(int(appid))
                             package['dlcs'].remove(int(appid))
+            self.log.info(f"{package['dlcs']}")
             for depot in manifests['manifests']:
                 depot_id = str(depot.depot_id)
                 manifest_gid = str(depot.gid)
