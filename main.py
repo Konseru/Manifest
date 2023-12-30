@@ -451,10 +451,9 @@ class ManifestAutoUpdate:
                 continue
             app = fresh_resp['apps'][app_id]
             manifests = cdn.get_manifests(int(app_id),app)
-            with lock:
-                if manifests['depots']:
-                    if int(app_id) not in self.user_info[username]['app']:
-                        self.user_info[username]['app'].append(int(app_id))
+            if manifests['depots']:
+                if int(app_id) not in self.user_info[username]['app']:
+                    self.user_info[username]['app'].append(int(app_id))
             if not manifests['manifests']:
                 continue       
             #尝试获取dlc或额外内容并添加到配置文件(仅添加拥有的DLC)
@@ -470,7 +469,7 @@ class ManifestAutoUpdate:
                         if dlcid in dlc_list:
                             dlc_list.remove(dlcid)
                 for depotid, value in dlcappids.items():
-                    if not depotid in manifests['depots'] and value in package['dlcs']:
+                    if not manifests['depots'].get(depotid,{}) and value in package['dlcs']:
                         package['dlcs'].remove(value)
                 element = self.retry(steam.get_product_info, dlc_list,timeout=30, retry_num=self.retry_num)
                 if element:
