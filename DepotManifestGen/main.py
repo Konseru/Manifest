@@ -430,7 +430,7 @@ class MyCDNClient(CDNClient):
                         and (ffunc is None or ffunc(depot_id,  depot_info)))
             mfs = self.get_manifests(app_id,self.get_app_depot_info(app_id), filter_func=nested_ffunc)
             rets['manifests'] += mfs['manifests']
-            rets['depots'] += mfs['depots']
+            rets['depots'].update(mfs['depots'])
         return rets
 log = logging.getLogger('DepotManifestGen')
 
