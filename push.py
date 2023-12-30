@@ -32,8 +32,9 @@ def push(repo=None,delete_tag=set()):
     total_branch = 0
     total_tag = 0
     for remote_sha, remote_tag in remote_tag_list:
-        print('delete_tag => ', remote_tag)
-        subprocess.check_call(['git', 'push', 'origin', f':refs/tags/{remote_tag}'])
+        if remote_tag != 'Steam_助手':
+            print('delete_tag => ', remote_tag)
+            subprocess.check_call(['git', 'push', 'origin', f':refs/tags/{remote_tag}'])
     with Pool(8) as pool:
         pool: ThreadPool
         result_list = []
