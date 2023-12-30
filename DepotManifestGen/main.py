@@ -422,11 +422,7 @@ class MyCDNClient(CDNClient):
             if isinstance(result, ManifestError):
                 raise result
             rets['manifests'].append(result)
-        with lock:
-            for depot in app_lock[str(app_id)]:
-                rets['depots'].append(depot)
-                
-
+        rets['depots']=app_lock[str(app_id)]
         # load shared depot manifests
         for app_id, depot_ids in iteritems(shared_depots):
             def nested_ffunc(depot_id, depot_info, depot_ids=depot_ids, ffunc=filter_func):
