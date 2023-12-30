@@ -458,27 +458,23 @@ class ManifestAutoUpdate:
                 continue       
             #尝试获取dlc或额外内容并添加到配置文件(仅添加拥有的DLC)
             package = {'dlcs': [], 'packagedlcs': []}
-            dlcappids = {}
             if 'extended' in app and 'listofdlc' in app['extended']:
                 dlc_list = list(map(int, app['extended']['listofdlc'].split(',')))
-                package['dlcs'] = dlc_list
+                package['dlcs'] = dlc_list[:]
                 for depotid, info in app['depots'].items():
                     if 'dlcappid' in info and 'manifests' in info:
                         dlcid = int(info['dlcappid'])
-                        dlcappids[depotid] = dlcid
+                        if not manifests['depots'].get(depotid,{}):
+                            if value in package['dlcs']:
+                                package['dlcs'].remove(dlcid)
                         if dlcid in dlc_list:
                             dlc_list.remove(dlcid)
-                        self.log.info(f"{package['dlcs']}")
-                for depotid, value in dlcappids.items():
-                    if not manifests['depots'].get(depotid,{}) and value in package['dlcs']:
-                        package['dlcs'].remove(value)
-                element = self.retry(steam.get_product_info, dlc_list,timeout=30, retry_num=self.retry_num)
-                if element:
+                if dlc_list:
+                    element = self.retry(steam.get_product_info, dlc_list,timeout=30, retry_num=self.retry_num)
                     for appid, info in element.get('apps',{}).items():
                         if info.get('depots',{}):
                             package['packagedlcs'].append(int(appid))
                             package['dlcs'].remove(int(appid))
-            return
             for depot in manifests['manifests']:
                 depot_id = str(depot.depot_id)
                 manifest_gid = str(depot.gid)
