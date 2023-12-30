@@ -48,7 +48,7 @@ def push(repo=None,delete_tag=set()):
                     result_list.append(
                         pool.map_async(subprocess.check_call, (['git', 'push', 'origin', local_head.name],)))
         #删除旧的标签            
-        for tag in delete_tag:
+        for tag in remote_tag_list:
             with lock:
                 print('delete_tag => ', tag)
             result_list.append(pool.map_async(subprocess.check_call, (['git', 'push', 'origin', f':refs/tags/{tag}'],)))
