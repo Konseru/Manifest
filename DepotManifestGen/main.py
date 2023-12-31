@@ -360,12 +360,27 @@ class MyCDNClient(CDNClient):
             if not depot_id.isdigit():
                 continue
 
-            depot_id = int(depot_id)
-
+            depot_id = int(depot_id) 
             # if filter_func set, use it to filter the list the depots
             if filter_func and not filter_func(depot_id, depot_info):
                 continue
-            
+                
+            # process depot, and get manifest for branch
+            if is_enc_branch:
+                egid = depot_info.get('encryptedmanifests', {}).get(branch, {}).get('encrypted_gid_2')
+
+                if egid is not None:
+                    manifest_gid = decrypt_manifest_gid_2(unhexlify(egid),
+                                                          self.beta_passwords[(app_id, branch)])
+                else:
+                    manifest_gid = depot_info.get('manifests', {}).get('public',{}).get('gid')
+            else:
+                manifest_gid = depot_info.get('manifests', {}).get(branch,{}).get('gid')
+                
+            if self.check_manifest_exist(str(depot_id), manifest_gid):
+                log.info(f'Already got the manifest: {depot_id}_{manifest_gid}')
+                app_lock[str(app_id)][str(depot_id)]= True
+
             # if we have no license for the depot, no point trying as we won't get depot_key
             if not self.has_license_for_depot(depot_id):
                 self._LOG.debug("No license for depot %s (%s). Skipped",
@@ -379,26 +394,9 @@ class MyCDNClient(CDNClient):
             if 'depotfromapp' in depot_info:
                 shared_depots.setdefault(int(re.search(r'\d+', depot_info['depotfromapp']).group()), set()).add(depot_id)
                 continue
-
-
-            # process depot, and get manifest for branch
-            if is_enc_branch:
-                egid = depot_info.get('encryptedmanifests', {}).get(branch, {}).get('encrypted_gid_2')
-
-                if egid is not None:
-                    manifest_gid = decrypt_manifest_gid_2(unhexlify(egid),
-                                                          self.beta_passwords[(app_id, branch)])
-                else:
-                    manifest_gid = depot_info.get('manifests', {}).get('public',{}).get('gid')
-            else:
-                manifest_gid = depot_info.get('manifests', {}).get(branch,{}).get('gid')
             if manifest_gid is not None:
                 with lock:
                     if not app_lock[str(app_id)].get(str(depot_id)):
-                        if self.check_manifest_exist(str(depot_id), manifest_gid):
-                            log.info(f'Already got the manifest: {depot_id}_{manifest_gid}')
-                            app_lock[str(app_id)][str(depot_id)]= True
-                            continue
                         tasks.append(
                             self.gpool.spawn(
                                 async_fetch_manifest,
