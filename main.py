@@ -463,7 +463,7 @@ class ManifestAutoUpdate:
                 dlc_list = list(map(int, app['extended']['listofdlc'].split(',')))
                 package['dlcs'] = dlc_list[:]
                 for depotid, info in app['depots'].items():
-                    if 'dlcappid' in info and 'manifests' in info:
+                    if 'dlcappid' in info and 'manifests' in info and 'public' in info['manifests']:
                         dlcid = int(info['dlcappid'])
                         if not manifests['depots'].get(depotid,{}):
                             if dlcid in package['dlcs']:
