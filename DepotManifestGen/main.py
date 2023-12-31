@@ -113,6 +113,26 @@ def get_manifest(cdn, app_id,appinfo,package,manifest, remove_old=False, save_pa
     manifest.payload.mappings.sort(key=lambda x: x.filename.lower())
     if not os.path.exists(app_path):
         os.makedirs(app_path)
+    depotint = int(depot_id)
+    if os.path.isfile(app_path / 'config.json'):
+        with open(app_path / 'config.json') as f:
+            config = json.load(f)
+            config['dlcs'] = package['dlcs']
+            config['packagedlcs'] = package['packagedlcs']
+            if not depotint in config['depots']:
+                config['depots'].append(depotint)
+    else:
+        #添加配置文件config.json
+        json_str = f'''
+            {{
+            "appId": {app_id},
+            "depots": [{depotint}],
+            "dlcs": [],
+            "packagedlcs": []
+            }}'''
+        config = json.loads(json_str)
+        config['dlcs'] = package['dlcs']
+        config['packagedlcs'] = package['packagedlcs']
     #if not os.path.isfile(app_path / 'appinfo.vdf'):
     with open(app_path / 'appinfo.vdf', 'w', encoding='utf-8') as f:
         vdf.dump(appinfo, f, pretty=True)
@@ -138,6 +158,8 @@ def get_manifest(cdn, app_id,appinfo,package,manifest, remove_old=False, save_pa
         f.write(manifest.serialize(compress=False))
     with open(app_path / 'Key.vdf', 'w') as f:
         vdf.dump(d, f, pretty=True)
+    with open(app_path / 'config.json', 'w') as f:
+        json.dump(config, f)
     return Result(result=True, code=EResult.OK, app_id=app_id, depot_id=depot_id, manifest_gid=manifest_gid,
                   delete_list=delete_list)
 
