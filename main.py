@@ -580,7 +580,7 @@ class ManifestAutoUpdate:
         for app_id, user_list in update_app_user.items():
             #导出所有对应app所包含的账号到appuserlist
             self.appuserlist.update({app_id:",".join(user_list)})
-            self.log.info(f'{app_id}: {",".join(user_list)}')
+            self.log.info(f'{app_id}: {" ".join(user_list)}')
         self.appuserlist.dump()
         #导出可以账户和密码到Avalidaccountlist
         #self.Avalidaccountlist.dump()
