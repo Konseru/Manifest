@@ -455,7 +455,7 @@ class ManifestAutoUpdate:
             manifests = cdn.get_manifests(int(app_id),app)
             if manifests['depots']:
                 for depot in manifests['depots']:
-                    delete_tag_list.add(self.tags.get(depot)[0])
+                    delete_tag_list.add(list(self.tags.get(depot))[0])
                     break
                 if int(app_id) not in self.user_info[username]['app']:
                     self.user_info[username]['app'].append(int(app_id))
