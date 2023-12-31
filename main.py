@@ -90,6 +90,7 @@ class ManifestAutoUpdate:
     remote_head = {}
     update_wait_time = 86400
     tags = {}
+    dlcinfo = {}
     
     def __init__(self, credential_location=None, level=None, pool_num=None, retry_num=None, update_wait_time=None,
                  key=None, init_only=False, cli=False, app_id_list=None, user_list=None):
@@ -470,7 +471,7 @@ class ManifestAutoUpdate:
                         if dlcid in dlc_list:
                             dlc_list.remove(dlcid)
                 if dlc_list:
-                    element = self.retry(steam.get_product_info, dlc_list,timeout=30, retry_num=self.retry_num)
+                    element = self.dlcinfo.setdefault(app_id, self.retry(steam.get_product_info, dlc_list,timeout=30, retry_num=self.retry_num))
                     for appid, info in element.get('apps',{}).items():
                         if info.get('depots',{}):
                             package['packagedlcs'].append(int(appid))
