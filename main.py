@@ -304,10 +304,10 @@ class ManifestAutoUpdate:
         if str(app_id) not in self.get_app_worktree():
             if app_path.exists():
                 app_path.unlink(missing_ok=True)
-            if self.check_app_repo_remote(app_id):
+            if not self.check_app_repo_remote(app_id):
                 with lock:
-                    #if not self.check_app_repo_local(app_id):
-                        #self.repo.git.fetch('origin', f'{app_id}:origin_{app_id}')
+                    if not self.check_app_repo_local(app_id):
+                        self.repo.git.fetch('origin', f'{app_id}:origin_{app_id}')
                 self.repo.git.worktree('add', '-b', app_id, app_path, f'origin_{app_id}')
             else:
                 if self.check_app_repo_local(app_id):
