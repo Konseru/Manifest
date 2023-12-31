@@ -365,7 +365,10 @@ class MyCDNClient(CDNClient):
             # if filter_func set, use it to filter the list the depots
             if filter_func and not filter_func(depot_id, depot_info):
                 continue
-
+            if self.check_manifest_exist(str(depot_id), manifest_gid):
+                log.info(f'Already got the manifest: {depot_id}_{manifest_gid}')
+                app_lock[str(app_id)][str(depot_id)]= True
+                continue
             # if we have no license for the depot, no point trying as we won't get depot_key
             if not self.has_license_for_depot(depot_id):
                 self._LOG.debug("No license for depot %s (%s). Skipped",
@@ -395,11 +398,6 @@ class MyCDNClient(CDNClient):
             if manifest_gid is not None:
                 with lock:
                     if not app_lock[str(app_id)].get(str(depot_id)):
-                        
-                        if self.check_manifest_exist(str(depot_id), manifest_gid):
-                            log.info(f'Already got the manifest: {depot_id}_{manifest_gid}')
-                            app_lock[str(app_id)][str(depot_id)]= True
-                            continue
                         tasks.append(
                             self.gpool.spawn(
                                 async_fetch_manifest,
