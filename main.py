@@ -460,7 +460,7 @@ class ManifestAutoUpdate:
                 continue       
             #尝试获取dlc或额外内容并添加到配置文件(仅添加拥有的DLC)
             package = {'dlcs': [], 'packagedlcs': [],'app_token': ''}
-            if app_token[app_id] != 0:
+            if app_token[app_id] != '0':
                 package['app_token'] = app_token[app_id]
                 self.log.info(f"{package['app_token']}")
             if 'extended' in app and 'listofdlc' in app['extended']:
