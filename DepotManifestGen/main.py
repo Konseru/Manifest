@@ -84,7 +84,7 @@ def get_manifest(cdn, app_id,appinfo,package,manifest, remove_old=False, save_pa
         save_path = Path().absolute()
     app_path = save_path / f'depots/{app_id}'
     manifest_path = app_path / f'{depot_id}_{manifest_gid}.manifest'
-    if not manifest_path.exists():
+    if manifest_path.exists():
         return Result(result=True, code=EResult.OK, app_id=app_id, depot_id=depot_id, manifest_gid=manifest_gid)
     while True:
         try:
