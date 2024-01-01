@@ -449,7 +449,7 @@ class ManifestAutoUpdate:
         flag = True    
    
         for app_id in app_id_list:
-            app_token = cdn.get_access_tokens([int(app_id)])
+            app_token = steam.get_access_tokens([int(app_id)])
             self.log.info(f'{app_token}')
             if self.update_app_id_list and int(app_id) not in self.update_app_id_list:
                 continue
