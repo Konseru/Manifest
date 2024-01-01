@@ -382,7 +382,7 @@ class ManifestAutoUpdate:
     def async_task(self, cdn, app_id,appinfo,package,depot):
         self.init_app_repo(app_id)
         manifest_path = self.ROOT / f'depots/{app_id}/{depot.depot_id}_{depot.gid}.manifest'
-        if not manifest_path.exists():
+        if manifest_path.exists():
             self.log.debug(f'manifest_path exists: {manifest_path}')
             app_repo = git.Repo(self.ROOT / f'depots/{app_id}')
             try:
