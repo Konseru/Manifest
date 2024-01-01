@@ -266,10 +266,10 @@ class MyCDNClient(CDNClient):
             packages = list(map(lambda l: {'packageid': l.package_id, 'access_token': l.access_token},
                                 itervalues(self.steam.licenses)))
         #改在初始化时获取app_id_list
+        log.info(f'{self.steam.get_product_info(packages=packages,timeout=30)}')
         for package_id, info in iteritems(self.steam.get_product_info(packages=packages,timeout=30)['packages']):
             if 'depotids' in info and info['depotids'] and info['billingtype'] in BillingType.PaidList:
                 app_id_list.extend(list(info['appids'].values()))
-                log.info(f'{info}')
             self.licensed_app_ids.update(info['appids'].values())
             self.licensed_depot_ids.update(info['depotids'].values())
         return app_id_list
