@@ -447,10 +447,9 @@ class ManifestAutoUpdate:
             return
         job_list = []
         flag = True    
-   
+        app_token = steam.get_access_tokens(app_id_list)
+        self.log.info(f'{app_token}')
         for app_id in app_id_list:
-            app_token = steam.get_access_tokens([int(app_id)])
-            self.log.info(f'{app_token}')
             if self.update_app_id_list and int(app_id) not in self.update_app_id_list:
                 continue
             app = fresh_resp['apps'][app_id]
