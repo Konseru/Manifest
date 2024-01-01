@@ -447,16 +447,14 @@ class ManifestAutoUpdate:
             return
         job_list = []
         flag = True    
-        global delete_tag_list
+        app_token = cdn.get_access_tokens(app_id_list)
+        self.log.info(f'{app_token}')
         for app_id in app_id_list:
             if self.update_app_id_list and int(app_id) not in self.update_app_id_list:
                 continue
             app = fresh_resp['apps'][app_id]
             manifests = cdn.get_manifests(int(app_id),app)
             if manifests['depots']:
-                #for depot in manifests['depots']:
-                    #delete_tag_list.add(list(self.tags.get(depot))[0])
-                    #break
                 if int(app_id) not in self.user_info[username]['app']:
                     self.user_info[username]['app'].append(int(app_id))
             if not manifests['manifests']:
