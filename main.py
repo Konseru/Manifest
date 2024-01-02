@@ -451,7 +451,7 @@ class ManifestAutoUpdate:
         for app_id in app_id_list:
             if app_token[app_id] != 0:
                 #package['app_token'] = app_token[app_id]
-                self.log.info(f"{package['app_token']}")
+                self.log.info(f"{app_token[app_id]}")
             if self.update_app_id_list and int(app_id) not in self.update_app_id_list:
                 continue
             app = fresh_resp['apps'][app_id]
