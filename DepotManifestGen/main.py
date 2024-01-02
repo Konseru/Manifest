@@ -119,6 +119,7 @@ def get_manifest(cdn, app_id,appinfo,package,manifest, remove_old=False, save_pa
             config = json.load(f)
             config['dlcs'] = package['dlcs']
             config['packagedlcs'] = package['packagedlcs']
+            config['app_token'] = package['app_token']
             if not depotint in config['depots']:
                 config['depots'].append(depotint)
     else:
@@ -128,11 +129,13 @@ def get_manifest(cdn, app_id,appinfo,package,manifest, remove_old=False, save_pa
             "appId": {app_id},
             "depots": [{depotint}],
             "dlcs": [],
-            "packagedlcs": []
+            "packagedlcs": [],
+            "app_token" : ''
             }}'''
         config = json.loads(json_str)
         config['dlcs'] = package['dlcs']
         config['packagedlcs'] = package['packagedlcs']
+        config['app_token'] = package['app_token']
     #if not os.path.isfile(app_path / 'appinfo.vdf'):
     with open(app_path / 'appinfo.vdf', 'w', encoding='utf-8') as f:
         vdf.dump(appinfo, f, pretty=True)
