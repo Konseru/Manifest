@@ -459,29 +459,27 @@ class ManifestAutoUpdate:
             if not manifests['manifests']:
                 continue       
             #尝试获取dlc或额外内容并添加到配置文件(仅添加拥有的DLC)
-            package = {'dlcs': [], 'packagedlcs': [],'app_token': ''}
+            package = {'dlcs': set(), 'packagedlcs': set(),'app_token': ''}
             #with lock:
                 #if not app_id in self.app_tokens:
                     #self.app_tokens.update(steam.get_access_tokens(app_id_list)['apps'])
                 #if self.app_tokens[app_id] != 0:
                     #package['app_token'] = self.app_tokens[app_id]
             if 'extended' in app and 'listofdlc' in app['extended']:
-                dlc_list = list(map(int, app['extended']['listofdlc'].split(',')))
-                package['dlcs'] = dlc_list[:]
+                dlc_list = set(map(int, app['extended']['listofdlc'].split(',')))
+                package['dlcs'] |= dlc_list
                 for depotid, info in app['depots'].items():
                     if 'dlcappid' in info and 'manifests' in info and 'public' in info['manifests']:
                         dlcid = int(info['dlcappid'])
                         if not manifests['depots'].get(depotid,{}):
-                            if dlcid in package['dlcs']:
-                                package['dlcs'].remove(dlcid)
-                        if dlcid in dlc_list:
-                            dlc_list.remove(dlcid)
+                            package['dlcs'].discard(dlcid)
+                        dlc_list.discard(dlcid)
                 if dlc_list:
                     element = self.dlcinfo.setdefault(app_id, self.retry(steam.get_product_info, dlc_list,timeout=30, retry_num=self.retry_num))
                     for appid, info in element.get('apps',{}).items():
                         if info.get('depots',{}):
-                            package['packagedlcs'].append(int(appid))
-                            package['dlcs'].remove(int(appid))
+                            package['packagedlcs'].add(int(appid))
+                            package['dlcs'].discard(int(appid))
             for depot in manifests['manifests']:
                 depot_id = str(depot.depot_id)
                 manifest_gid = str(depot.gid)
