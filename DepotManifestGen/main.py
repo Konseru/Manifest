@@ -117,8 +117,9 @@ def get_manifest(cdn, app_id,appinfo,package,manifest, remove_old=False, save_pa
     if os.path.isfile(app_path / 'config.json'):
         with open(app_path / 'config.json') as f:
             config = json.load(f)
-            set(config['dlcs']) |= package['dlcs']
-            set(config['packagedlcs']) |= package['packagedlcs']
+            config['dlcs'] = list(set(config['dlcs']).union(package['dlcs']))
+            config['packagedlcs'] = list(set(config['packagedlcs']).union(package['packagedlcs']))
+            
             config['app_token'] = package['app_token']
             if not depotint in config['depots']:
                 config['depots'].append(depotint)
@@ -130,11 +131,11 @@ def get_manifest(cdn, app_id,appinfo,package,manifest, remove_old=False, save_pa
             "depots": [{depotint}],
             "dlcs": [],
             "packagedlcs": [],
-            "app_token" : ''
+            "app_token" : 0
             }}'''
         config = json.loads(json_str)
-        set(config['dlcs']) |= package['dlcs']
-        set(config['packagedlcs']) |= package['packagedlcs']
+        config['dlcs'] = list(set(config['dlcs']).union(package['dlcs']))
+        config['packagedlcs'] = list(set(config['packagedlcs']).union(package['packagedlcs']))
         config['app_token'] = package['app_token']
     #if not os.path.isfile(app_path / 'appinfo.vdf'):
     with open(app_path / 'appinfo.vdf', 'w', encoding='utf-8') as f:
