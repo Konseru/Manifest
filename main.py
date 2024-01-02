@@ -91,7 +91,7 @@ class ManifestAutoUpdate:
     update_wait_time = 86400
     tags = {}
     dlcinfo = {}
-    
+    app_tokens = {}
     def __init__(self, credential_location=None, level=None, pool_num=None, retry_num=None, update_wait_time=None,
                  key=None, init_only=False, cli=False, app_id_list=None, user_list=None):
         if level:
@@ -447,7 +447,7 @@ class ManifestAutoUpdate:
             return
         job_list = []
         flag = True    
-        app_token = steam.get_access_tokens(app_id_list)['apps']
+        
         for app_id in app_id_list:
             if self.update_app_id_list and int(app_id) not in self.update_app_id_list:
                 continue
@@ -460,8 +460,10 @@ class ManifestAutoUpdate:
                 continue       
             #尝试获取dlc或额外内容并添加到配置文件(仅添加拥有的DLC)
             package = {'dlcs': [], 'packagedlcs': [],'app_token': ''}
-            if app_token[app_id] != 0:
-                package['app_token'] = app_token[app_id]
+            if self.app_tokens.get(app_id,None) == None:
+                self.app_tokens[app_id] = steam.get_access_tokens([int(app_id)])['apps'][app_id]
+            if self.app_tokens[app_id] != 0:
+                package['app_token'] = self.app_tokens[app_id]
             if 'extended' in app and 'listofdlc' in app['extended']:
                 dlc_list = list(map(int, app['extended']['listofdlc'].split(',')))
                 package['dlcs'] = dlc_list[:]
