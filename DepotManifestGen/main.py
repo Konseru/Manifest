@@ -379,11 +379,13 @@ class MyCDNClient(CDNClient):
                     manifest_gid = depot_info.get('manifests', {}).get('public',{}).get('gid')
             else:
                 manifest_gid = depot_info.get('manifests', {}).get(branch,{}).get('gid')
-                
-            if self.check_manifest_exist(str(depot_id), manifest_gid):
-                #log.info(f'Already got the manifest: {depot_id}_{manifest_gid}')
-                app_lock[str(app_id)][str(depot_id)]= True
 
+            if manifest_gid is not None:
+                if self.check_manifest_exist(str(depot_id), manifest_gid):
+                    #log.info(f'Already got the manifest: {depot_id}_{manifest_gid}')
+                    app_lock[str(app_id)][str(depot_id)]= True
+            else:
+                continue
             # if we have no license for the depot, no point trying as we won't get depot_key
             if not self.has_license_for_depot(depot_id):
                 self._LOG.debug("No license for depot %s (%s). Skipped",
