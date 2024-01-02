@@ -316,7 +316,7 @@ class MyCDNClient(CDNClient):
     def get_manifests(self, app_id,app, branch='public', password=None, filter_func=None, decrypt=False):
         #depots = self.get_app_depot_info(app_id)
         depots = app.get('depots',{})
-        rets = {'manifests':[],'depots':[]}
+        rets = {'manifests':[],'depots':{}}
         if not depots:
             return rets
         global app_lock
@@ -426,7 +426,7 @@ class MyCDNClient(CDNClient):
             if isinstance(result, ManifestError):
                 raise result
             rets['manifests'].append(result)
-        rets['depots'] = dict(app_lock[str(app_id)])
+        rets['depots'].update(app_lock[str(app_id)])
         # load shared depot manifests
         for app_id, depot_ids in iteritems(shared_depots):
             def nested_ffunc(depot_id, depot_info, depot_ids=depot_ids, ffunc=filter_func):
