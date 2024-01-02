@@ -460,7 +460,7 @@ class ManifestAutoUpdate:
                 continue       
             #尝试获取dlc或额外内容并添加到配置文件(仅添加拥有的DLC)
             package = {'dlcs': [], 'packagedlcs': [],'app_token': ''}
-            if self.app_tokens.get(app_id,1) == 1:
+            if not app_id in self.app_tokens:
                 self.app_tokens |= set(steam.get_access_tokens(app_id_list)['apps'])
             if self.app_tokens[app_id] != 0:
                 package['app_token'] = self.app_tokens[app_id]
