@@ -462,7 +462,7 @@ class ManifestAutoUpdate:
             package = {'dlcs': set(), 'packagedlcs': set(),'app_token': 0}
             with lock:
                 if not app_id in self.app_tokens:
-                    self.app_tokens.update(steam.get_access_tokens(app_id_list)['apps'])
+                    self.app_tokens.update(cdn.steam.get_access_tokens(app_id_list)['apps'])
                 if self.app_tokens[app_id] != 0:
                     package['app_token'] = self.app_tokens[app_id]
             if 'extended' in app and 'listofdlc' in app['extended']:
