@@ -91,7 +91,7 @@ class ManifestAutoUpdate:
     update_wait_time = 86400
     tags = {}
     dlcinfo = {}
-    app_tokens = set()
+    app_tokens = {}
     def __init__(self, credential_location=None, level=None, pool_num=None, retry_num=None, update_wait_time=None,
                  key=None, init_only=False, cli=False, app_id_list=None, user_list=None):
         if level:
@@ -462,7 +462,7 @@ class ManifestAutoUpdate:
             package = {'dlcs': [], 'packagedlcs': [],'app_token': ''}
             with lock:
                 if not app_id in self.app_tokens:
-                    self.app_tokens |= set(steam.get_access_tokens(app_id_list)['apps'])
+                    self.app_tokens.update(steam.get_access_tokens(app_id_list)['apps'])
                 if self.app_tokens[app_id] != 0:
                     package['app_token'] = self.app_tokens[app_id]
             if 'extended' in app and 'listofdlc' in app['extended']:
