@@ -459,7 +459,7 @@ class ManifestAutoUpdate:
             if not manifests['manifests']:
                 continue       
             #尝试获取dlc或额外内容并添加到配置文件(仅添加拥有的DLC)
-            package = {'dlcs': set(), 'packagedlcs': set(),'app_token': ''}
+            package = {'dlcs': set(), 'packagedlcs': set(),'app_token': 0}
             #with lock:
                 #if not app_id in self.app_tokens:
                     #self.app_tokens.update(steam.get_access_tokens(app_id_list)['apps'])
