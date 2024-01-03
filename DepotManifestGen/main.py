@@ -119,8 +119,8 @@ def get_manifest(cdn, app_id,appinfo,package,manifest, remove_old=False, save_pa
             config = json.load(f)
             config['dlcs'] = list(set(config['dlcs']).union(package['dlcs']))
             config['packagedlcs'] = list(set(config['packagedlcs']).union(package['packagedlcs']))
-            
-            config['app_token'] = package['app_token']
+            if package['app_token'] != 0:
+                config['app_token'] = package['app_token']
             if not depotint in config['depots']:
                 config['depots'].append(depotint)
     else:
