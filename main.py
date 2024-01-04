@@ -460,11 +460,11 @@ class ManifestAutoUpdate:
                 continue       
             #尝试获取dlc或额外内容并添加到配置文件(仅添加拥有的DLC)
             package = {'dlcs': set(), 'packagedlcs': set(),'app_token': 0}
-            with lock:
-                if not app_id in self.app_tokens:
-                    self.app_tokens.update(cdn.steam.get_access_tokens(app_id_list)['apps'])
-                if self.app_tokens.get(app_id,0) != 0:
-                    package['app_token'] = self.app_tokens[app_id]
+            #with lock:
+            if not app_id in self.app_tokens:
+                self.app_tokens.update(cdn.steam.get_access_tokens(app_id_list)['apps'])
+            if self.app_tokens.get(app_id,0) != 0:
+                package['app_token'] = self.app_tokens[app_id]
             if 'extended' in app and 'listofdlc' in app['extended']:
                 dlc_list = set(map(int, app['extended']['listofdlc'].split(',')))
                 package['dlcs'] |= dlc_list
