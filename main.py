@@ -433,21 +433,13 @@ class ManifestAutoUpdate:
             return
         app_id_list = cdn.load_licenses()
         self.log.info(f'User {username}: {len(app_id_list)} paid app found!')
-        #忽略获取app_id_list失败导致误判
-        if not app_id_list and result != EResult.OK:
-            self.user_info[username]['enable'] = False
-            self.user_info[username]['status'] = result
-            logging.warning(f'User {username}: Does not have any app and has been disabled!')
-            return
-        self.log.debug(f'User {username}, paid app id list: ' + ','.join([str(i) for i in app_id_list]))
         self.log.info(f'User {username}: Waiting to get app info!')
         fresh_resp = self.retry(steam.get_product_info, app_id_list,timeout=5, retry_num=self.retry_num)
         if not fresh_resp:
             logging.error(f'User {username}: Failed to get app info!')
             return
         job_list = []
-        flag = True    
-        
+        flag = True
         for app_id in app_id_list:
             if self.update_app_id_list and int(app_id) not in self.update_app_id_list:
                 continue
@@ -477,7 +469,7 @@ class ManifestAutoUpdate:
                 if dlc_list:
                     element = self.dlcinfo.setdefault(app_id, self.retry(steam.get_product_info, dlc_list,timeout=5, retry_num=self.retry_num))
                     for appid, info in element.get('apps',{}).items():
-                        if info.get('depots',{}):
+                        if len(info.get('depots',{})) > 0:
                             package['packagedlcs'].add(int(appid))
                             package['dlcs'].discard(int(appid))
             for depot in manifests['manifests']:
