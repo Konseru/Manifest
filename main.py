@@ -353,8 +353,8 @@ class ManifestAutoUpdate:
                     result = steam.cli_login(username, password)
                 break
             #避免多次挤号导致ip封禁
-            elif result == EResult.AlreadyLoggedInElsewhere:
-                break
+            #elif result == EResult.AlreadyLoggedInElsewhere:
+                #break
             elif result == EResult.RateLimitExceeded:
                 if not count:
                     break
